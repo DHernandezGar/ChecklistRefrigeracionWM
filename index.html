@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Portal de Checklists de Refrigeración - Walmart México y Centroamérica</title>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Century Gothic', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background: #eaedf1;
+    color: #111;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header Institucional */
+  .hub-header {
+    background: #002244;
+    color: #fff;
+    padding: 14px 20px;
+    border-bottom: 4px solid #ffc220;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  }
+
+  .hub-brand-area {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .hub-title {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .hub-subtitle {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffc220;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .hub-logo {
+    max-height: 48px;
+    max-width: 200px;
+    object-fit: contain;
+  }
+
+  /* Auth Bar */
+  .auth-status-bar {
+    background: #004c97;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+  }
+
+  .auth-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+  }
+
+  .auth-user-pic {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid #ffc220;
+    object-fit: cover;
+  }
+
+  .btn-auth {
+    background: #ffc220;
+    color: #002244;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .btn-auth:hover {
+    background: #e6ac00;
+  }
+
+  /* Contenedor Principal */
+  .hub-container {
+    max-width: 1000px;
+    width: 100%;
+    margin: 25px auto;
+    padding: 0 16px;
+    flex: 1;
+  }
+
+  .welcome-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 22px;
+    border-left: 6px solid #0071dc;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+
+  .welcome-card h2 {
+    font-size: 16px;
+    font-weight: 900;
+    color: #002244;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .welcome-card p {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* Grid de Formatos Disponibles */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+  }
+
+  .format-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .format-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  }
+
+  .format-card-header {
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-freon {
+    background: linear-gradient(135deg, #0071dc 0%, #004c97 100%);
+  }
+
+  .header-co2 {
+    background: linear-gradient(135deg, #1e7e34 0%, #002244 100%);
+  }
+
+  .format-badge {
+    background: #ffc220;
+    color: #002244;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9.5px;
+    font-weight: 900;
+  }
+
+  .format-card-body {
+    padding: 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .format-desc {
+    font-size: 11.5px;
+    color: #444;
+    line-height: 1.45;
+  }
+
+  .features-list {
+    list-style: none;
+    font-size: 11px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .features-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .features-list li::before {
+    content: "";
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .format-card-footer {
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .btn-launch {
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    background: #0071dc;
+    color: #fff;
+    padding: 11px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 900;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+  }
+
+  .btn-launch:hover {
+    background: #0056b3;
+  }
+
+  .btn-launch.btn-co2 {
+    background: #28a745;
+  }
+
+  .btn-launch.btn-co2:hover {
+    background: #218838;
+  }
+
+  /* Instrucciones para proveedores */
+  .guide-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 18px 22px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .guide-box h3 {
+    font-size: 13px;
+    font-weight: 900;
+    color: #002244;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .guide-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .step-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .step-num {
+    background: #002244;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .step-title {
+    font-weight: 900;
+    font-size: 11.5px;
+    color: #002244;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 10.5px;
+    color: #555;
+    line-height: 1.35;
+  }
+
+  .hub-footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 10.5px;
+    color: #666;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    margin-top: auto;
+  }
+
+  @media (max-width: 600px) {
+    .hub-header {
+      flex-direction: column-reverse;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .hub-logo {
+      align-self: flex-end;
+      max-height: 40px;
+    }
+    .hub-title {
+      font-size: 14px;
+    }
+    .auth-status-bar {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="hub-header">
+    <div class="hub-brand-area">
+      <div class="hub-title">WALMART MÉXICO Y CENTROAMÉRICA</div>
+      <div class="hub-subtitle">PORTAL OFICIAL DE CHECKLISTS DE REFRIGERACIÓN (CONTRATISTAS EN CAMPO)</div>
+    </div>
+    <img id="hubLogo" src="data:image/png;base64,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" alt="Walmart" class="hub-logo">
+  </header>
+
+  <!-- Auth Bar -->
+  <div class="auth-status-bar">
+    <div id="userInfoArea" class="auth-user-chip">
+      <span>Estado: Conectado como Técnico de Campo</span>
+    </div>
+    <div>
+      <span style="font-size: 10.5px; opacity: 0.9;">Destino: david.elias.hernandez@walmart.com</span>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div class="hub-container">
+
+    <div class="welcome-card">
+      <h2>Acceso a Protocolos de Inspección en Sitio</h2>
+      <p>
+        Bienvenido al portal móvil de inspección de sistemas de refrigeración. Selecciona a continuación el tipo de refrigerante del rack instalado en la tienda para iniciar el llenado interactivo, captura de evidencias fotográficas y validación técnica.
+      </p>
+    </div>
+
+    <!-- Grid de Formatos -->
+    <div class="cards-grid">
+
+      <!-- Tarjeta FREON -->
+      <div class="format-card">
+        <div class="format-card-header header-freon">
+          <span>Racks de Freón (R-449A / R-404A)</span>
+          <span class="format-badge">FREÓN</span>
+        </div>
+        <div class="format-card-body">
+          <p class="format-desc">
+            Protocolo de revisión técnica para sistemas de refrigeración con refrigerantes halogenados (Formatos Regulares: Bodega Aurrera, Walmart Supercenter, Sam's Club, Express).
+          </p>
+          <ul class="features-list">
+            <li>Subenfriamiento (SC) y Presiones MT/LT</li>
+            <li>Monitoreo de 8 Compresores con cálculo SH automático</li>
+            <li>Inspección de Aceite y Nivel de Refrigerante</li>
+            <li>79 Evidencias fotográficas guiadas</li>
+            <li>Dictamen técnico y firmas digitales táctiles</li>
+          </ul>
+        </div>
+        <div class="format-card-footer">
+          <a href="./Checklist_Rack_Y_Controlador_Freon_Walmart.html" class="btn-launch">
+            Abrir Checklist de Freón →
+          </a>
+        </div>
+      </div>
+
+      <!-- Tarjeta CO2 -->
+      <div class="format-card">
+        <div class="format-card-header header-co2">
+          <span>Racks de CO₂ (Transcrítico / Subcrítico)</span>
+          <span class="format-badge">R-744</span>
+        </div>
+        <div class="format-card-body">
+          <p class="format-desc">
+            Protocolo técnico especializado para sistemas transcríticos y subcríticos de CO₂ R-744 (Tecnología sustentable / Obra nueva y remodelaciones).
+          </p>
+          <ul class="features-list">
+            <li>Presión en Flashtank (35 - 42 bar) y Presiones MT/LT</li>
+            <li>Monitoreo de 8 Compresores con Temperatura de Succión</li>
+            <li>Inspección de Aceite POE y Sensores de Nivel</li>
+            <li>79 Evidencias fotográficas (Gas Cooler, Flashtank, Compresores)</li>
+            <li>Evaluación normativa en tiempo real y firmas touch</li>
+          </ul>
+        </div>
+        <div class="format-card-footer">
+          <a href="./Checklist_Rack_Y_Controlador_CO2_Walmart.html" class="btn-launch btn-co2">
+            Abrir Checklist de CO₂ →
+          </a>
+        </div>
+      </div>
+
+          <!-- Tarjeta CASCADA HÍBRIDA RCR -->
+      <div class="format-card">
+        <div class="format-card-header" style="background: linear-gradient(135deg, #b45309 0%, #002244 100%);">
+          <span>Cascada Híbrida RCR (R290 / Glicol / CO2)</span>
+          <span class="format-badge" style="background: #ffc220; color: #002244;">HÍBRIDO</span>
+        </div>
+        <div class="format-card-body">
+          <p class="format-desc">
+            Protocolo especializado para sistemas Plotter con enfriador de glicol PROPAC (R290 Propano) y equipos condensados por glicol ECOPAC (CO2 R-744 y Slaves).
+          </p>
+          <ul class="features-list">
+            <li>PROPAC R290: Compresores 1 y 2, DLT y SH automático</li>
+            <li>Circuito de Glicol: ΔT automático, bombas y nivel (%)</li>
+            <li>Condensador PROPAC: 8 motores/contactores y amperajes</li>
+            <li>ECOPAC CO2: 6 equipos y slaves con válvulas de expansión</li>
+            <li>Evaporadores: Motores y resistencias de deshielo L1/L2/L3</li>
+            <li>Deshielos: Programación de 8 sistemas por unidad</li>
+            <li>28 Evidencias fotográficas guiadas oficiales</li>
+          </ul>
+        </div>
+        <div class="format-card-footer">
+          <a href="./Checklist_Rack_Y_Controlador_Cascada_Hibrida_RCR_Walmart.html" class="btn-launch" style="background: #b45309;">
+            Abrir Checklist Cascada Híbrida →
+          </a>
+        </div>
+      </div>
+          <!-- Tarjeta CASCADA HÍBRIDA HUSSMANN -->
+      <div class="format-card">
+        <div class="format-card-header" style="background: linear-gradient(135deg, #0f766e 0%, #002244 100%);">
+          <span>Cascada Híbrida Hussmann (Chiller R290 / Bomba y 3 Headers / Rack CO2)</span>
+          <span class="format-badge" style="background: #2dd4bf; color: #002244;">HUSSMANN</span>
+        </div>
+        <div class="format-card-body">
+          <p class="format-desc">
+            Protocolo de supervisión para sistemas de arquitectura centralizada: Chiller exterior R290, circuito secundario de glicol con bomba central y 3 headers de circulación, y rack centralizado CO2 de baja temperatura.
+          </p>
+          <ul class="features-list">
+            <li>Chiller R290: 15 puntos de revisión operativa y seguridad A3</li>
+            <li>Glicol: Bomba central, variador VFD, tanque y balance en 3 headers</li>
+            <li>Rack CO2 LT: 18 puntos (succión, descarga, Flashtank y válvulas)</li>
+            <li>Intercambio Térmico: 16 puntos (aproximación térmica y alarmas)</li>
+            <li>24 Evidencias fotográficas guiadas oficiales</li>
+            <li>Dictamen de cumplimiento y firmas digitales táctiles</li>
+          </ul>
+        </div>
+        <div class="format-card-footer">
+          <a href="./Checklist_Rack_Y_Controlador_Cascada_Hibrida_Hussmann_Walmart.html" class="btn-launch" style="background: #0f766e;">
+            Abrir Checklist Cascada Hussmann →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guía para el técnico en campo -->
+    <div class="guide-box">
+      <h3>Instrucciones de Llenado para el Proveedor / Técnico</h3>
+      <div class="guide-steps">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-title">Ingreso con Gmail</div>
+          <div class="step-desc">El técnico inicia sesión con su cuenta de Google en su celular para vincular su nombre y correo al reporte de forma transparente.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-title">Captura en Sitio</div>
+          <div class="step-desc">Toma lecturas con multímetro, manómetros y fotos directas con la cámara del celular en cada uno de los recuadros guiados.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-title">Firma Digital</div>
+          <div class="step-desc">Firma en pantalla táctil con el dedo tanto el técnico especialista como el supervisor o residente de obra Walmart.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-title">Envío Oficial</div>
+          <div class="step-desc">Al pulsar "Enviar por Correo", se descarga el archivo auditable final y se abre el correo listo para enviar a David Hernández y supervisores.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="hub-footer">
+    Subdirección de Mantenimiento y Garantías &nbsp;|&nbsp; Walmart México y Centroamérica &nbsp;|&nbsp; Uso exclusivo para proveedores autorizados
+  </footer>
+
+  <script>
+    // Cargar logotipo en Base64 desde el archivo existente o embed
+    window.addEventListener('DOMContentLoaded', function() {
+      // Intentar leer el logo embebido de la app hermana si está en el mismo storage
+      var img = document.getElementById('hubLogo');
+      if (img) {
+        // Obtenemos el logo directamente
+        fetch('b64_logo.txt').then(r => r.text()).then(txt => {
+          img.src = txt.trim();
+        }).catch(() => {
+          // Fallback a imagen de la app
+          img.style.display = 'none';
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

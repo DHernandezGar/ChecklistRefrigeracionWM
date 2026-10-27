@@ -1,0 +1,3662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Checklist Cascada Híbrida (R290, Glicol y CO2) - Walmart México y Centroamérica</title>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Century Gothic', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background-color: #eaedf1;
+    color: #111;
+    font-size: 11px;
+    line-height: 1.3;
+    padding-bottom: 35px;
+  }
+
+  /* === PANTALLA DE ACCESO GOOGLE (GMAIL) === */
+  #authGateOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #002244 0%, #004c97 100%);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .auth-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+    max-width: 480px;
+    width: 100%;
+    padding: 28px 24px;
+    text-align: center;
+    border-top: 5px solid #ffc220;
+  }
+
+  .auth-logo-img {
+    max-height: 48px;
+    margin-bottom: 16px;
+    object-fit: contain;
+  }
+
+  .auth-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: #002244;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .auth-subtitle {
+    font-size: 11px;
+    color: #555;
+    margin-bottom: 22px;
+    line-height: 1.4;
+  }
+
+  .btn-google-login {
+    background: #ffffff;
+    color: #3c4043;
+    border: 1.5px solid #dadce0;
+    border-radius: 6px;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  .btn-google-login:hover {
+    background: #f8f9fa;
+    border-color: #0071dc;
+    box-shadow: 0 4px 12px rgba(0,113,220,0.2);
+  }
+
+  .google-g-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .auth-security-notice {
+    margin-top: 18px;
+    font-size: 9.5px;
+    color: #777;
+    line-height: 1.4;
+    border-top: 1px solid #eee;
+    padding-top: 14px;
+  }
+
+  /* === CHIP DE USUARIO EN BARRA SUPERIOR === */
+  .auth-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10.5px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .auth-user-pic {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #ffc220;
+    object-fit: cover;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: none;
+    color: #ffc220;
+    font-weight: 900;
+    font-size: 10px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 4px;
+  }
+
+  /* === IMPRESIÓN OFICIO HORIZONTAL === */
+  @page {
+    size: 14in 8.5in landscape;
+    margin: 0.25in;
+  }
+
+  @media print {
+    body {
+      background: #fff !important;
+      padding: 0 !important;
+      font-size: 8px !important;
+    }
+    .no-print, #authGateOverlay {
+      display: none !important;
+    }
+    .print-only {
+      display: block !important;
+    }
+    .tab-content {
+      display: block !important;
+      margin-bottom: 18px;
+      page-break-after: always;
+    }
+    .tab-content:last-child {
+      page-break-after: auto;
+    }
+    .app-container {
+      max-width: 100% !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    .card-section {
+      box-shadow: none !important;
+      border: 1px solid #777 !important;
+      page-break-inside: avoid;
+    }
+    .table-container {
+      overflow: visible !important;
+    }
+    table {
+      page-break-inside: avoid;
+    }
+    input, select, textarea {
+      border: none !important;
+      background: transparent !important;
+      font-weight: bold !important;
+      box-shadow: none !important;
+      color: #000 !important;
+    }
+    .btn-signature-clear, .badge-status {
+      display: none !important;
+    }
+  }
+
+  /* === CONTENEDOR PRINCIPAL === */
+  .app-container {
+    max-width: 1400px;
+    margin: 12px auto;
+    background: #ffffff;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* === BARRA SUPERIOR DE HERRAMIENTAS Y PESTAÑAS (3 VISTAS TÉCNICAS) === */
+  .top-action-bar {
+    background: #002244;
+    color: #fff;
+    padding: 9px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 3px solid #ffc220;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .nav-tabs-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: #004c97;
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+  }
+
+  .tab-btn:hover {
+    background: #0056b3;
+  }
+
+  .tab-btn.active {
+    background: #ffc220;
+    color: #002244;
+    font-weight: 900;
+    border-bottom: 3px solid #ff9900;
+  }
+
+  .tab-btn-email {
+    background: #28a745;
+    color: white;
+    font-weight: 800;
+  }
+
+  .tab-btn-email:hover {
+    background: #218838;
+  }
+
+  .actions-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    border: none;
+    padding: 8px 13px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-save { background: #0071dc; color: #fff; }
+  .btn-save:hover { background: #005bb5; }
+  .btn-print { background: #495057; color: #fff; }
+  .btn-print:hover { background: #343a40; }
+  .btn-clear { background: #dc3545; color: #fff; }
+  .btn-clear:hover { background: #bd2130; }
+  .btn-add-photo { background: #ffc220; color: #002244; font-weight: 800; }
+  .btn-add-photo:hover { background: #e6ac00; }
+
+  /* === ENCABEZADO INSTITUCIONAL === */
+  .brand-header {
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #000;
+    background: #fff;
+  }
+
+  .brand-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .brand-legend {
+    font-size: 16.5px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: #000;
+    text-transform: uppercase;
+  }
+
+  .brand-subtitle {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0071dc;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .brand-doc-id {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #666;
+  }
+
+  .brand-logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .brand-logo-img {
+    max-height: 50px;
+    max-width: 240px;
+    object-fit: contain;
+  }
+
+  /* === SECCIONES Y TABLAS EXCEL === */
+  .sheet-body {
+    padding: 12px 16px;
+  }
+
+  .card-section {
+    margin-bottom: 12px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .section-header-bar {
+    background: #000000;
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table.excel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+
+  table.excel-table th, table.excel-table td {
+    border: 1px solid #333;
+    padding: 4px 6px;
+    vertical-align: middle;
+  }
+
+  .bg-black { background: #000000 !important; color: #ffffff !important; font-weight: 800; }
+  .bg-gray-label { background: #e9ecef; font-weight: 800; color: #222; text-transform: uppercase; font-size: 9.5px; }
+  .bg-subhdr { background: #f2f2f2; font-weight: 800; color: #111; text-align: center; }
+
+  .cell-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    color: #111;
+    padding: 3px 4px;
+  }
+
+  .cell-input:focus {
+    background: #e7f3ff;
+    box-shadow: inset 0 0 0 1.5px #0071dc;
+    border-radius: 2px;
+  }
+
+  .cell-input.text-center {
+    text-align: center;
+  }
+
+  .cell-input.bold-val {
+    font-weight: 900;
+  }
+
+  /* === SEMÁFORO DE CRITICIDAD === */
+  .status-badge-cell {
+    text-align: center;
+    font-weight: 900;
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+    min-width: 60px;
+  }
+
+  .thermo-normal {
+    background-color: #e2efda !important;
+    color: #385723 !important;
+    font-weight: 900;
+  }
+
+  .thermo-warning {
+    background-color: #fff2cc !important;
+    color: #833c0c !important;
+    font-weight: 900;
+  }
+
+  .thermo-critical {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+    font-weight: 900;
+  }
+
+  .sh-na {
+    background-color: #e9ecef;
+    color: #666;
+    font-weight: bold;
+  }
+
+  /* === BOTONES TÁCTILES ROBUSTOS === */
+  .choice-btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  .choice-btn {
+    border: 1.5px solid #bbb;
+    background: #f8f9fa;
+    color: #333;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.15s ease;
+  }
+
+  .choice-btn:hover {
+    background: #eef5ff;
+    border-color: #0071dc;
+  }
+
+  .choice-btn.selected-si {
+    background: #28a745 !important;
+    color: #ffffff !important;
+    border-color: #1e7e34 !important;
+  }
+
+  .choice-btn.selected-no {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    border-color: #bd2130 !important;
+  }
+
+  /* === FIRMAS TOUCH === */
+  .signature-box-container {
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fbfbfb;
+    border: 1.5px dashed #0071dc;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    padding: 6px;
+    transition: background 0.2s;
+  }
+
+  .signature-box-container:hover {
+    background: #f0f7ff;
+  }
+
+  .signature-prompt {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #0071dc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .signature-preview-img {
+    max-height: 65px;
+    max-width: 95%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .btn-signature-clear {
+    margin-top: 4px;
+    padding: 2px 8px;
+    font-size: 9px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .btn-signature-clear:hover {
+    background: #dc3545;
+  }
+
+  /* === REPORTE FOTOGRÁFICO === */
+  .photo-section-block {
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1.5px solid #002244;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .photo-section-title {
+    background: #002244;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 7px 12px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 12px;
+    background: #fafbfc;
+  }
+
+  @media (max-width: 960px) {
+    .photo-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .photo-card {
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.06);
+    page-break-inside: avoid;
+  }
+
+  .photo-card-header {
+    background: #000;
+    color: #fff;
+    padding: 5px 9px;
+    font-size: 9.5px;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .photo-preview-area {
+    height: 190px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-preview-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .photo-placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    font-weight: 800;
+    font-size: 10px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  .photo-desc-area {
+    padding: 6px;
+    background: #fff;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .photo-desc-label {
+    font-size: 8.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .photo-desc-input {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-family: inherit;
+    font-size: 9.5px;
+    resize: vertical;
+    outline: none;
+  }
+
+  .btn-remove-photo {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* === EVALUACIÓN NORMATIVA AUDITABLE === */
+  .audit-summary-section {
+    margin-top: 14px;
+    border: 2px solid #002244;
+    border-radius: 6px;
+    background: #ffffff;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  .audit-summary-header {
+    background: #002244;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 10.5px;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+  }
+
+  .audit-table th, .audit-table td {
+    border: 1px solid #ddd;
+    padding: 4px 7px;
+    vertical-align: middle;
+  }
+
+  .audit-table th {
+    background: #f1f3f5;
+    font-weight: 900;
+    color: #222;
+  }
+
+  .audit-badge-pass {
+    background: #e2efda;
+    color: #385723;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .audit-badge-alert {
+    background: #ffc7ce;
+    color: #9c0006;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .audit-badge-warn {
+    background: #fff2cc;
+    color: #833c0c;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* === MODALES === */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-header {
+    background: #002244;
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 900;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #ffc220;
+  }
+
+  .modal-body {
+    padding: 14px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .canvas-wrap {
+    border: 2px dashed #0071dc;
+    border-radius: 6px;
+    background: #ffffff;
+    position: relative;
+    touch-action: none;
+    overflow: hidden;
+  }
+
+  #signatureCanvas {
+    display: block;
+    width: 100%;
+    height: 240px;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .canvas-baseline {
+    position: absolute;
+    bottom: 35px;
+    left: 20px;
+    right: 20px;
+    border-bottom: 1.5px dashed #ccc;
+    pointer-events: none;
+    text-align: center;
+    font-size: 9px;
+    color: #999;
+  }
+
+  .photo-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  @media (max-width: 500px) {
+    .photo-options-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .btn-photo-choice {
+    background: #f8f9fa;
+    border: 2px solid #0071dc;
+    border-radius: 8px;
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 11px;
+    color: #002244;
+    cursor: pointer;
+  }
+
+  .btn-photo-choice:hover {
+    background: #e7f3ff;
+  }
+
+  .mail-summary-box {
+    background: #f4f6f9;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 10px;
+    white-space: pre-wrap;
+    max-height: 240px;
+    overflow-y: auto;
+    color: #222;
+    margin: 8px 0;
+  }
+
+  .legal-footer-note {
+    margin-top: 10px;
+    padding: 7px 10px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    font-size: 9px;
+    color: #856404;
+    font-weight: bold;
+    text-align: justify;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<!-- PANTALLA DE ACCESO GOOGLE AUTH -->
+<div id="authGateOverlay">
+  <div class="auth-card">
+    <img src="data:image/png;base64,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" alt="Walmart México y Centroamérica" class="auth-logo-img">
+    <div class="auth-title">Sistema Cascada Híbrida RCR</div>
+    <div class="auth-subtitle">
+      Protocolo Técnico de Refrigeración para R290 (Propano), Circuito de Glicol y Equipos ECOPAC CO2 (R-744). Ingrese con su cuenta de Google (Gmail) para validar en campo.
+    </div>
+
+    <button type="button" class="btn-google-login" onclick="signInWithGoogle()">
+      <svg class="google-g-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.25 21.36 7.33 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+      </svg>
+      <span>Continuar con Google (Gmail)</span>
+    </button>
+
+    <div style="margin-top: 14px;">
+      <button type="button" onclick="continueAsGuest()" style="background: none; border: none; font-size: 10px; color: #0071dc; cursor: pointer; text-decoration: underline;">
+        Continuar como invitado / Técnico en campo (modo local)
+      </button>
+    </div>
+
+    <div class="auth-security-notice">
+      Al acceder, su correo y nombre se vincularán automáticamente al reporte para fines de trazabilidad, auditoría técnica y respaldo ante Walmart México y Centroamérica.
+    </div>
+  </div>
+</div>
+
+<div class="app-container" id="appRoot">
+
+  <!-- BARRA DE HERRAMIENTAS Y PESTAÑAS (3 VISTAS: PROPAC R290, ECOPAC CO2, REPORTE FOTOGRÁFICO) -->
+  <div class="top-action-bar no-print">
+    <div class="nav-tabs-group">
+      <button type="button" class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-propac')">
+        1. PROPAC (R290 / GLICOL)
+      </button>
+      <button type="button" class="tab-btn" id="tabBtn2" onclick="switchTab('tab-ecopac')">
+        2. ECOPAC (CO2 / SLAVES)
+      </button>
+      <button type="button" class="tab-btn" id="tabBtn3" onclick="switchTab('tab-fotos')">
+        3. REPORTE FOTOGRÁFICO (<span id="photoBadgeCount">0</span>)
+      </button>
+      <button type="button" class="tab-btn tab-btn-email" id="tabBtnEmail" onclick="enviarChecklistPorCorreo()">
+        4. ENVIAR CHECKLIST POR CORREO
+      </button>
+    </div>
+
+    <div class="actions-group">
+      <div id="authUserChip" class="auth-user-chip" style="display: none;">
+        <img id="authUserPic" class="auth-user-pic" src="" alt="User">
+        <span id="authUserName">Técnico</span>
+        <button type="button" class="btn-logout" onclick="signOutUser()">Salir</button>
+      </div>
+
+      <button type="button" class="btn btn-save" onclick="guardarYDescargarEditable()">
+        GUARDAR Y DESCARGAR
+      </button>
+      <button type="button" class="btn btn-print" onclick="imprimirChecklistYFotos()">
+        IMPRIMIR (OFICIO)
+      </button>
+      <button type="button" class="btn btn-clear" onclick="limpiarFormulario()">
+        LIMPIAR
+      </button>
+    </div>
+  </div>
+
+  <!-- MEMBRETE INSTITUCIONAL -->
+  <header class="brand-header">
+    <div class="brand-title-area">
+      <div class="brand-legend">WALMART MÉXICO Y CENTROAMÉRICA</div>
+      <div class="brand-subtitle">CHECKLIST DE REFRIGERACIÓN - SISTEMA PLOTTER CASCADA HÍBRIDA (PROPAC R290 / GLICOL / ECOPAC CO2)</div>
+      <div class="brand-doc-id">DOC-EXCEL: 01_CHECKLIST_RACK_Y_CONTROLADOR - CASCADA HIBRIDA RCR.XLSX &nbsp;|&nbsp; OFICIO HORIZONTAL</div>
+    </div>
+    <div class="brand-logo-area">
+      <img src="data:image/png;base64,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" alt="Walmart México y Centroamérica" class="brand-logo-img">
+    </div>
+  </header>
+
+  <main class="sheet-body">
+
+    <!-- =================================================================== -->
+    <!-- PESTAÑA 1: CHECKLIST PROPAC (ENFRIADOR DE GLICOL CON R290)          -->
+    <!-- =================================================================== -->
+    <div class="tab-content" id="tab-propac">
+
+      <!-- ENCABEZADO PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>DATOS GENERALES DE LA UNIDAD · PROPAC (ENFRIADOR DE GLICOL)</span>
+          <span>REFRIGERANTE R-290 (PROPANO)</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <tbody>
+              <tr>
+                <td class="bg-gray-label" style="width: 14%;">TIENDA:</td>
+                <td style="width: 36%;">
+                  <input type="text" id="field_tienda" class="cell-input bold-val" placeholder="Ej. BA CD CONSTITUCION" oninput="syncFields('field_tienda')">
+                </td>
+                <td class="bg-gray-label" style="width: 14%;">FORMATO:</td>
+                <td style="width: 36%;">
+                  <select id="field_formato" class="cell-input bold-val" onchange="syncFields('field_formato')">
+                    <option value="BODEGA AURRERA">BODEGA AURRERA</option>
+                    <option value="WALMART SUPERCENTER">WALMART SUPERCENTER</option>
+                    <option value="SAM'S CLUB">SAM'S CLUB</option>
+                    <option value="WALMART EXPRESS">WALMART EXPRESS</option>
+                    <option value="MI BODEGA AURRERA">MI BODEGA AURRERA</option>
+                    <option value="BODEGA AURRERA EXPRESS">BODEGA AURRERA EXPRESS</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">REFRIGERANTE:</td>
+                <td>
+                  <input type="text" id="p_refrigerante" class="cell-input bold-val" value="R-290 (Propano)" readonly>
+                </td>
+                <td class="bg-gray-label">ESTADO:</td>
+                <td>
+                  <input type="text" id="field_estado" class="cell-input" placeholder="Ej. BAJA CALIFORNIA SUR" oninput="syncFields('field_estado')">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">T° EXTERIOR (°C):</td>
+                <td>
+                  <input type="text" id="field_temp_ext" class="cell-input text-center bold-val" placeholder="Ej. 34°C" oninput="syncFields('field_temp_ext')">
+                </td>
+                <td class="bg-gray-label">FECHA:</td>
+                <td>
+                  <input type="date" id="field_fecha" class="cell-input bold-val" oninput="syncFields('field_fecha')">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">UNIDAD:</td>
+                <td>
+                  <input type="text" id="p_unidad" class="cell-input bold-val" placeholder="Ej. PROPAC 1">
+                </td>
+                <td class="bg-gray-label">TIPO DE ACEITE:</td>
+                <td>
+                  <input type="text" id="p_aceite_tipo" class="cell-input" placeholder="Ej. POE 170 / PAG">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ALIMENTACIÓN ELÉCTRICA PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>ALIMENTACIÓN ELÉCTRICA PRINCIPAL (PROPAC)</span>
+          <span>MULTÍMETRO DIGITAL</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 16%;">MEDICIÓN</th>
+                <th style="width: 14%;">VOLTAJE L1-L2 (V)</th>
+                <th style="width: 14%;">VOLTAJE L2-L3 (V)</th>
+                <th style="width: 14%;">VOLTAJE L3-L1 (V)</th>
+                <th style="width: 14%;">L1-TIERRA (V)</th>
+                <th style="width: 14%;">L2-TIERRA (V)</th>
+                <th style="width: 14%;">L3-TIERRA (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray-label bold-val">LECTURA</td>
+                <td><input type="number" step="0.1" id="p_v_l1_l2" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="p_v_l2_l3" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="p_v_l3_l1" class="cell-input text-center bold-val" placeholder="471"></td>
+                <td><input type="number" step="0.1" id="p_v_l1_t" class="cell-input text-center" placeholder="268"></td>
+                <td><input type="number" step="0.1" id="p_v_l2_t" class="cell-input text-center" placeholder="268"></td>
+                <td><input type="number" step="0.1" id="p_v_l3_t" class="cell-input text-center" placeholder="268"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COMPRESORES PROPAC (COMP 1 Y COMP 2) -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>COMPRESORES PROPAC (R290) · PRESIONES, TEMPERATURAS Y ESTADOS AUTOMÁTICOS</span>
+          <span>FÓRMULAS DLT Y SH EXCEL</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 8%;"># COMP.</th>
+                <th style="width: 9%;">PRESIÓN SUCCIÓN (PSI)</th>
+                <th style="width: 9%;">PRESIÓN DESCARGA (PSI)</th>
+                <th style="width: 9%;">T° SUCCIÓN (°C)</th>
+                <th style="width: 9%;">T° DESCARGA (°C)</th>
+                <th style="width: 10%;">ESTADO T° DESC.</th>
+                <th style="width: 10%;">SOBRECALENTAMIENTO (K)</th>
+                <th style="width: 10%;">ESTADO SH</th>
+                <th style="width: 8%;">PARO (PSI)</th>
+                <th style="width: 8%;">ARRANQUE (PSI)</th>
+                <th style="width: 10%;">VOLTAJE L-L (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Comp 1</td>
+                <td><input type="number" step="0.1" id="p_c1_p_suc" class="cell-input text-center bold-val" placeholder="45.0"></td>
+                <td><input type="number" step="0.1" id="p_c1_p_desc" class="cell-input text-center bold-val" placeholder="215.0"></td>
+                <td><input type="number" step="0.1" id="p_c1_t_suc" class="cell-input text-center" placeholder="8.5"></td>
+                <td><input type="number" step="0.1" id="p_c1_t_desc" class="cell-input text-center bold-val" placeholder="85.0" oninput="evalDLTGeneric('p_c1')"></td>
+                <td class="text-center"><span id="p_c1_t_desc_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="p_c1_sh" class="cell-input text-center bold-val" placeholder="12.0" oninput="calcSHGeneric('p_c1')"></td>
+                <td class="text-center"><span id="p_c1_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.1" id="p_c1_paro" class="cell-input text-center" placeholder="35.0"></td>
+                <td><input type="number" step="0.1" id="p_c1_arranque" class="cell-input text-center" placeholder="55.0"></td>
+                <td><input type="number" step="0.1" id="p_c1_v_ll" class="cell-input text-center bold-val" placeholder="470"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Comp 2</td>
+                <td><input type="number" step="0.1" id="p_c2_p_suc" class="cell-input text-center bold-val" placeholder="45.0"></td>
+                <td><input type="number" step="0.1" id="p_c2_p_desc" class="cell-input text-center bold-val" placeholder="215.0"></td>
+                <td><input type="number" step="0.1" id="p_c2_t_suc" class="cell-input text-center" placeholder="8.5"></td>
+                <td><input type="number" step="0.1" id="p_c2_t_desc" class="cell-input text-center bold-val" placeholder="85.0" oninput="evalDLTGeneric('p_c2')"></td>
+                <td class="text-center"><span id="p_c2_t_desc_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="p_c2_sh" class="cell-input text-center bold-val" placeholder="12.0" oninput="calcSHGeneric('p_c2')"></td>
+                <td class="text-center"><span id="p_c2_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.1" id="p_c2_paro" class="cell-input text-center" placeholder="35.0"></td>
+                <td><input type="number" step="0.1" id="p_c2_arranque" class="cell-input text-center" placeholder="55.0"></td>
+                <td><input type="number" step="0.1" id="p_c2_v_ll" class="cell-input text-center bold-val" placeholder="470"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CIRCUITO DE GLICOL · BOMBAS RECIRCULADORAS -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>CIRCUITO DE GLICOL · BOMBAS RECIRCULADORAS</span>
+          <span>Δ T GLICOL = T° ENTRADA - T° SALIDA</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 12%;">BOMBA</th>
+                <th style="width: 15%;">PRESIÓN SALIDA (PSI)</th>
+                <th style="width: 15%;">T° ENTRADA GLICOL (°C)</th>
+                <th style="width: 15%;">T° SALIDA GLICOL (°C)</th>
+                <th style="width: 15%;">Δ T GLICOL (°C)</th>
+                <th style="width: 14%;">NIVEL TANQUE (%)</th>
+                <th style="width: 14%;">VOLTAJE L-L (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Bomba 1</td>
+                <td><input type="number" step="0.1" id="bomba_1_p_sal" class="cell-input text-center bold-val" placeholder="38.0"></td>
+                <td><input type="number" step="0.1" id="bomba_1_t_ent" class="cell-input text-center bold-val" placeholder="-2.0" oninput="calcDeltaTGlicol(1)"></td>
+                <td><input type="number" step="0.1" id="bomba_1_t_sal" class="cell-input text-center bold-val" placeholder="-6.5" oninput="calcDeltaTGlicol(1)"></td>
+                <td class="text-center bold-val"><span id="bomba_1_dt">4.5 °C</span></td>
+                <td><input type="number" step="0.1" id="bomba_1_tanque" class="cell-input text-center bold-val" placeholder="85%"></td>
+                <td><input type="number" step="0.1" id="bomba_1_v_ll" class="cell-input text-center" placeholder="470"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Bomba 2</td>
+                <td><input type="number" step="0.1" id="bomba_2_p_sal" class="cell-input text-center bold-val" placeholder="38.0"></td>
+                <td><input type="number" step="0.1" id="bomba_2_t_ent" class="cell-input text-center bold-val" placeholder="-2.0" oninput="calcDeltaTGlicol(2)"></td>
+                <td><input type="number" step="0.1" id="bomba_2_t_sal" class="cell-input text-center bold-val" placeholder="-6.5" oninput="calcDeltaTGlicol(2)"></td>
+                <td class="text-center bold-val"><span id="bomba_2_dt">4.5 °C</span></td>
+                <td><input type="number" step="0.1" id="bomba_2_tanque" class="cell-input text-center bold-val" placeholder="85%"></td>
+                <td><input type="number" step="0.1" id="bomba_2_v_ll" class="cell-input text-center" placeholder="470"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MOTORES Y CONTACTORES DE CONDENSADOR PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>MOTORES Y CONTACTORES DE CONDENSADOR PROPAC</span>
+          <span>VENTILADORES #1 AL #8</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 20%;">MOTOR / CONFACTOR</th>
+                <th style="width: 10%;">#1</th>
+                <th style="width: 10%;">#2</th>
+                <th style="width: 10%;">#3</th>
+                <th style="width: 10%;">#4</th>
+                <th style="width: 10%;">#5</th>
+                <th style="width: 10%;">#6</th>
+                <th style="width: 10%;">#7</th>
+                <th style="width: 10%;">#8</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray-label bold-val">¿MOTOR OPERA?</td>
+                
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_1_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_1_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_2_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_2_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_3_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_3_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_4_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_4_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_5_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_5_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_6_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_6_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_7_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_7_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="mot_8_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_mot_8_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">AMPERAJE L1 (A)</td>
+                <td><input type="number" step="0.01" id="mot_1_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_2_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_3_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_4_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_5_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_6_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_7_l1" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_8_l1" class="cell-input text-center" placeholder="2.4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">AMPERAJE L2 (A)</td>
+                <td><input type="number" step="0.01" id="mot_1_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_2_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_3_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_4_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_5_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_6_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_7_l2" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_8_l2" class="cell-input text-center" placeholder="2.4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">AMPERAJE L3 (A)</td>
+                <td><input type="number" step="0.01" id="mot_1_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_2_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_3_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_4_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_5_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_6_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_7_l3" class="cell-input text-center" placeholder="2.4"></td><td><input type="number" step="0.01" id="mot_8_l3" class="cell-input text-center" placeholder="2.4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">¿CONTACTOR OPERA?</td>
+                
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_1_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_1_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_2_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_2_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_3_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_3_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_4_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_4_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_5_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_5_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_6_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_6_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_7_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_7_opera" value="SI">
+                </td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="cont_8_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_cont_8_opera" value="SI">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ACEITE DE COMPRESORES PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>ACEITE DE COMPRESORES PROPAC</span>
+          <span>CONFORMIDAD TÉCNICA</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 80%;">PUNTO DE INSPECCIÓN DE ACEITE</th>
+                <th style="width: 20%;">SÍ / NO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>El nivel de aceite está por lo menos a ¼ de la mirilla.</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="p_aceite1">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_p_aceite1" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td>El aceite es de color claro (casi cristalino).</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="p_aceite2">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_p_aceite2" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td>Hay presencia de espuma.</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="p_aceite3">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_p_aceite3" value="NO">
+                </td>
+              </tr>
+              <tr>
+                <td>Sensor de nivel de aceite sin alarmas (LED verde).</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="p_aceite4">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_p_aceite4" value="SI">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROGRAMACIÓN DE DESHIELOS PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>PROGRAMACIÓN DE DESHIELOS (SISTEMAS PROPAC 1 AL 8)</span>
+          <span>SETPOINT, DURACIÓN Y HORARIOS</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 10%;">NO. SISTEMA</th>
+                <th style="width: 10%;">SETPOINT (°C)</th>
+                <th style="width: 10%;">TIEMPO (MIN)</th>
+                <th style="width: 12%;">TIPO DESHIELO</th>
+                <th style="width: 10%;">DESHIELO #1</th>
+                <th style="width: 10%;">DESHIELO #2</th>
+                <th style="width: 10%;">DESHIELO #3</th>
+                <th style="width: 10%;">DESHIELO #4</th>
+                <th style="width: 10%;">DESHIELO #5</th>
+                <th style="width: 8%;">BANDA (°C)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 1</td>
+                <td><input type="number" step="0.1" id="p_dsh_1_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_1_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_1_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_1_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_1_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_1_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_1_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_1_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_1_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 2</td>
+                <td><input type="number" step="0.1" id="p_dsh_2_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_2_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_2_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_2_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_2_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_2_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_2_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_2_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_2_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 3</td>
+                <td><input type="number" step="0.1" id="p_dsh_3_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_3_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_3_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_3_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_3_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_3_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_3_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_3_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_3_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 4</td>
+                <td><input type="number" step="0.1" id="p_dsh_4_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_4_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_4_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_4_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_4_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_4_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_4_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_4_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_4_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 5</td>
+                <td><input type="number" step="0.1" id="p_dsh_5_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_5_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_5_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_5_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_5_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_5_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_5_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_5_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_5_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 6</td>
+                <td><input type="number" step="0.1" id="p_dsh_6_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_6_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_6_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_6_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_6_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_6_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_6_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_6_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_6_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 7</td>
+                <td><input type="number" step="0.1" id="p_dsh_7_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_7_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_7_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_7_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_7_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_7_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_7_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_7_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_7_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 8</td>
+                <td><input type="number" step="0.1" id="p_dsh_8_sp" class="cell-input text-center" placeholder="3.0"></td>
+                <td><input type="number" step="1" id="p_dsh_8_tiempo" class="cell-input text-center" placeholder="45"></td>
+                <td>
+                  <select id="p_dsh_8_tipo" class="cell-input text-center">
+                    <option value="Aire">Aire</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                  </select>
+                </td>
+                <td><input type="time" id="p_dsh_8_h1" class="cell-input text-center" value="02:00"></td>
+                <td><input type="time" id="p_dsh_8_h2" class="cell-input text-center" value="08:00"></td>
+                <td><input type="time" id="p_dsh_8_h3" class="cell-input text-center" value="14:00"></td>
+                <td><input type="time" id="p_dsh_8_h4" class="cell-input text-center" value="20:00"></td>
+                <td><input type="time" id="p_dsh_8_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="p_dsh_8_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COMENTARIOS PROPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>COMENTARIOS GENERALES PROPAC (ENFRIADOR DE GLICOL)</span>
+        </div>
+        <div style="padding: 6px;">
+          <textarea id="p_comentarios" class="cell-input" style="min-height: 48px; resize: vertical;" placeholder="Observaciones de operación del PROPAC, circuito de glicol, bombas y condensador..."></textarea>
+        </div>
+      </section>
+
+    </div><!-- /tab-propac -->
+
+
+    <!-- =================================================================== -->
+    <!-- PESTAÑA 2: CHECKLIST ECOPAC (EQUIPOS CO2 Y TABLEROS SLAVE)         -->
+    <!-- =================================================================== -->
+    <div class="tab-content" id="tab-ecopac" style="display: none;">
+
+      <!-- ENCABEZADO ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>DATOS GENERALES DE LA UNIDAD · EQUIPOS CO2 (ECOPAC Y TABLERO SLAVE)</span>
+          <span>REFRIGERANTE CO2 R-744 (CONDENSADO POR GLICOL)</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <tbody>
+              <tr>
+                <td class="bg-gray-label" style="width: 14%;">TIENDA:</td>
+                <td style="width: 36%;">
+                  <input type="text" id="e_field_tienda" class="cell-input bold-val" placeholder="Ej. BA CD CONSTITUCION" oninput="syncFields('e_field_tienda')">
+                </td>
+                <td class="bg-gray-label" style="width: 14%;">FORMATO:</td>
+                <td style="width: 36%;">
+                  <select id="e_field_formato" class="cell-input bold-val" onchange="syncFields('e_field_formato')">
+                    <option value="BODEGA AURRERA">BODEGA AURRERA</option>
+                    <option value="WALMART SUPERCENTER">WALMART SUPERCENTER</option>
+                    <option value="SAM'S CLUB">SAM'S CLUB</option>
+                    <option value="WALMART EXPRESS">WALMART EXPRESS</option>
+                    <option value="MI BODEGA AURRERA">MI BODEGA AURRERA</option>
+                    <option value="BODEGA AURRERA EXPRESS">BODEGA AURRERA EXPRESS</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">REFRIGERANTE:</td>
+                <td>
+                  <input type="text" id="e_refrigerante" class="cell-input bold-val" value="R-744 (CO2)" readonly>
+                </td>
+                <td class="bg-gray-label">ESTADO:</td>
+                <td>
+                  <input type="text" id="e_field_estado" class="cell-input" placeholder="Ej. BAJA CALIFORNIA SUR" oninput="syncFields('e_field_estado')">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">T° EXTERIOR (°C):</td>
+                <td>
+                  <input type="text" id="e_field_temp_ext" class="cell-input text-center bold-val" placeholder="Ej. 34°C" oninput="syncFields('e_field_temp_ext')">
+                </td>
+                <td class="bg-gray-label">FECHA:</td>
+                <td>
+                  <input type="date" id="e_field_fecha" class="cell-input bold-val" oninput="syncFields('e_field_fecha')">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label">UNIDAD:</td>
+                <td>
+                  <input type="text" id="e_unidad" class="cell-input bold-val" placeholder="Ej. ECOPAC 1-2-3 / SLAVES">
+                </td>
+                <td class="bg-gray-label">TIPO DE ACEITE:</td>
+                <td>
+                  <input type="text" id="e_aceite_tipo" class="cell-input" placeholder="Ej. POE 85 (Especial CO2)">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ALIMENTACIÓN ELÉCTRICA ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>ALIMENTACIÓN ELÉCTRICA PRINCIPAL (ECOPAC)</span>
+          <span>MULTÍMETRO DIGITAL</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 16%;">MEDICIÓN</th>
+                <th style="width: 14%;">VOLTAJE L1-L2 (V)</th>
+                <th style="width: 14%;">VOLTAJE L2-L3 (V)</th>
+                <th style="width: 14%;">VOLTAJE L3-L1 (V)</th>
+                <th style="width: 14%;">L1-TIERRA (V)</th>
+                <th style="width: 14%;">L2-TIERRA (V)</th>
+                <th style="width: 14%;">L3-TIERRA (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray-label bold-val">LECTURA</td>
+                <td><input type="number" step="0.1" id="e_v_l1_l2" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e_v_l2_l3" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e_v_l3_l1" class="cell-input text-center bold-val" placeholder="471"></td>
+                <td><input type="number" step="0.1" id="e_v_l1_t" class="cell-input text-center" placeholder="268"></td>
+                <td><input type="number" step="0.1" id="e_v_l2_t" class="cell-input text-center" placeholder="268"></td>
+                <td><input type="number" step="0.1" id="e_v_l3_t" class="cell-input text-center" placeholder="268"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PRESIONES Y TEMPERATURAS ECOPAC (ECOPAC 1 A 3 Y SLAVES 1 A 3) -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>PRESIONES Y TEMPERATURAS · ECOPAC Y TABLEROS SLAVE</span>
+          <span>FÓRMULA SH AUTOMÁTICA EXCEL</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 11%;">EQUIPO</th>
+                <th style="width: 8%;">PRESIÓN SUCCIÓN (PSI)</th>
+                <th style="width: 8%;">PRESIÓN DESCARGA (PSI)</th>
+                <th style="width: 8%;">T° CONDENS. (°C)</th>
+                <th style="width: 9%;">SOBRECALENT. (K)</th>
+                <th style="width: 9%;">ESTADO SH</th>
+                <th style="width: 9%;">SH VÁLV. MÍN (K)</th>
+                <th style="width: 9%;">SH VÁLV. MÁX (K)</th>
+                <th style="width: 7%;">PARO (PSI)</th>
+                <th style="width: 7%;">ARRANQUE (PSI)</th>
+                <th style="width: 8%;">T° ENTRADA GLICOL (°C)</th>
+                <th style="width: 7%;">NIVEL ACEITE</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 1</td>
+                <td><input type="number" step="0.1" id="eco_1_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_1_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_1_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_1_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_1')"></td>
+                <td class="text-center"><span id="eco_1_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_1_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_1_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_1_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_1_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_1_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_1_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Slave Ecopac 1</td>
+                <td><input type="number" step="0.1" id="eco_s1_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_s1_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_s1_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_s1_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_s1')"></td>
+                <td class="text-center"><span id="eco_s1_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_s1_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_s1_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_s1_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_s1_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_s1_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_s1_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 2</td>
+                <td><input type="number" step="0.1" id="eco_2_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_2_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_2_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_2_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_2')"></td>
+                <td class="text-center"><span id="eco_2_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_2_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_2_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_2_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_2_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_2_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_2_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Slave Ecopac 2</td>
+                <td><input type="number" step="0.1" id="eco_s2_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_s2_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_s2_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_s2_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_s2')"></td>
+                <td class="text-center"><span id="eco_s2_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_s2_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_s2_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_s2_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_s2_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_s2_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_s2_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 3</td>
+                <td><input type="number" step="0.1" id="eco_3_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_3_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_3_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_3_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_3')"></td>
+                <td class="text-center"><span id="eco_3_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_3_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_3_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_3_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_3_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_3_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_3_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Slave Ecopac 3</td>
+                <td><input type="number" step="0.1" id="eco_s3_p_suc" class="cell-input text-center bold-val" placeholder="190"></td>
+                <td><input type="number" step="0.1" id="eco_s3_p_desc" class="cell-input text-center bold-val" placeholder="420"></td>
+                <td><input type="number" step="0.1" id="eco_s3_t_cond" class="cell-input text-center" placeholder="-2.5"></td>
+                <td><input type="number" step="0.01" id="eco_s3_sh" class="cell-input text-center bold-val" placeholder="14.2" oninput="calcSHGeneric('eco_s3')"></td>
+                <td class="text-center"><span id="eco_s3_sh_eval" class="status-badge-cell sh-na">N/A</span></td>
+                <td><input type="number" step="0.01" id="eco_s3_sh_min" class="cell-input text-center" placeholder="8.0"></td>
+                <td><input type="number" step="0.01" id="eco_s3_sh_max" class="cell-input text-center" placeholder="16.0"></td>
+                <td><input type="number" step="0.1" id="eco_s3_paro" class="cell-input text-center" placeholder="160"></td>
+                <td><input type="number" step="0.1" id="eco_s3_arranque" class="cell-input text-center" placeholder="210"></td>
+                <td><input type="number" step="0.1" id="eco_s3_t_glicol" class="cell-input text-center bold-val" placeholder="-4.0"></td>
+                <td><input type="text" id="eco_s3_aceite" class="cell-input text-center bold-val" placeholder="3/4"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 5px 10px; font-size: 9px; color: #555; background: #fafafa; border-top: 1px solid #ddd;">
+          <em>Nota oficial Excel:</em> En el tablero slave, la columna de sobrecalentamiento corresponde al compresor del Ecopac al que está ligado; el nivel de aceite aplica al tablero slave.
+        </div>
+      </section>
+
+      <!-- VOLTAJE DE COMPRESORES ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>VOLTAJE DE COMPRESORES ECOPAC</span>
+          <span>ECOPAC 1, 2 Y 3</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 25%;">EQUIPO</th>
+                <th style="width: 25%;">VOLTAJE L1-L2 (V)</th>
+                <th style="width: 25%;">VOLTAJE L2-L3 (V)</th>
+                <th style="width: 25%;">VOLTAJE L3-L1 (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 1</td>
+                <td><input type="number" step="0.1" id="e1_comp_v1" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e1_comp_v2" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e1_comp_v3" class="cell-input text-center bold-val" placeholder="471"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 2</td>
+                <td><input type="number" step="0.1" id="e2_comp_v1" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e2_comp_v2" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e2_comp_v3" class="cell-input text-center bold-val" placeholder="471"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Ecopac 3</td>
+                <td><input type="number" step="0.1" id="e3_comp_v1" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e3_comp_v2" class="cell-input text-center bold-val" placeholder="470"></td>
+                <td><input type="number" step="0.1" id="e3_comp_v3" class="cell-input text-center bold-val" placeholder="471"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- EVAPORADORES · AMPERAJE -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>EVAPORADORES · AMPERAJE DE MOTORES Y RESISTENCIAS DE DESHIELO</span>
+          <span>ECOPAC Y SLAVES</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 16%;">EVAPORADOR</th>
+                <th style="width: 12%;">MOTORES L1 (A)</th>
+                <th style="width: 12%;">MOTORES L2 (A)</th>
+                <th style="width: 12%;">MOTORES L3 (A)</th>
+                <th style="width: 12%;">RESISTENCIAS L1 (A)</th>
+                <th style="width: 12%;">RESISTENCIAS L2 (A)</th>
+                <th style="width: 12%;">RESISTENCIAS L3 (A)</th>
+                <th style="width: 12%;">¿OPERA? (SÍ/NO)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Ecopac 1</td>
+                <td><input type="number" step="0.01" id="e_evap_1_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_1_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_1_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_1_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_1_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_1_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_1_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_1_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Slave 1</td>
+                <td><input type="number" step="0.01" id="e_evap_s1_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_s1_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_s1_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_s1_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_s1_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_s1_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_s1_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_s1_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Ecopac 2</td>
+                <td><input type="number" step="0.01" id="e_evap_2_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_2_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_2_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_2_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_2_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_2_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_2_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_2_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Slave 2</td>
+                <td><input type="number" step="0.01" id="e_evap_s2_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_s2_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_s2_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_s2_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_s2_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_s2_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_s2_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_s2_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Ecopac 3</td>
+                <td><input type="number" step="0.01" id="e_evap_3_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_3_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_3_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_3_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_3_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_3_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_3_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_3_opera" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label bold-val">Evap. Slave 3</td>
+                <td><input type="number" step="0.01" id="e_evap_s3_m_l1" class="cell-input text-center" placeholder="1.85"></td>
+                <td><input type="number" step="0.01" id="e_evap_s3_m_l2" class="cell-input text-center" placeholder="1.80"></td>
+                <td><input type="number" step="0.01" id="e_evap_s3_m_l3" class="cell-input text-center" placeholder="1.82"></td>
+                <td><input type="number" step="0.01" id="e_evap_s3_r_l1" class="cell-input text-center" placeholder="14.2"></td>
+                <td><input type="number" step="0.01" id="e_evap_s3_r_l2" class="cell-input text-center" placeholder="14.5"></td>
+                <td><input type="number" step="0.01" id="e_evap_s3_r_l3" class="cell-input text-center" placeholder="14.1"></td>
+                <td>
+                  <div class="choice-btn-group" data-choice-group="e_evap_s3_opera">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_evap_s3_opera" value="SI">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ACEITE DE COMPRESORES ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>ACEITE DE COMPRESORES ECOPAC (CO2)</span>
+          <span>CONFORMIDAD TÉCNICA</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 80%;">PUNTO DE INSPECCIÓN DE ACEITE</th>
+                <th style="width: 20%;">SÍ / NO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>El nivel de aceite está por lo menos a ¼ de la mirilla.</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="e_aceite1">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_aceite1" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td>El aceite es de color claro (casi cristalino).</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="e_aceite2">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_aceite2" value="SI">
+                </td>
+              </tr>
+              <tr>
+                <td>Hay presencia de espuma.</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="e_aceite3">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_aceite3" value="NO">
+                </td>
+              </tr>
+              <tr>
+                <td>Sensor de nivel de aceite sin alarmas (LED verde).</td>
+                <td style="text-align: center;">
+                  <div class="choice-btn-group" data-choice-group="e_aceite4">
+                    <button type="button" class="choice-btn" data-choice-val="SI">SÍ</button>
+                    <button type="button" class="choice-btn" data-choice-val="NO">NO</button>
+                  </div>
+                  <input type="hidden" id="field_e_aceite4" value="SI">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROGRAMACIÓN DE DESHIELOS ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>PROGRAMACIÓN DE DESHIELOS (SISTEMAS ECOPAC 1 AL 8)</span>
+          <span>SETPOINT, DURACIÓN Y HORARIOS</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 10%;">NO. SISTEMA</th>
+                <th style="width: 10%;">SETPOINT (°C)</th>
+                <th style="width: 10%;">TIEMPO (MIN)</th>
+                <th style="width: 12%;">TIPO DESHIELO</th>
+                <th style="width: 10%;">DESHIELO #1</th>
+                <th style="width: 10%;">DESHIELO #2</th>
+                <th style="width: 10%;">DESHIELO #3</th>
+                <th style="width: 10%;">DESHIELO #4</th>
+                <th style="width: 10%;">DESHIELO #5</th>
+                <th style="width: 8%;">BANDA (°C)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 1</td>
+                <td><input type="number" step="0.1" id="e_dsh_1_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_1_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_1_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_1_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_1_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_1_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_1_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_1_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_1_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 2</td>
+                <td><input type="number" step="0.1" id="e_dsh_2_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_2_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_2_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_2_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_2_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_2_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_2_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_2_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_2_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 3</td>
+                <td><input type="number" step="0.1" id="e_dsh_3_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_3_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_3_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_3_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_3_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_3_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_3_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_3_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_3_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 4</td>
+                <td><input type="number" step="0.1" id="e_dsh_4_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_4_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_4_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_4_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_4_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_4_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_4_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_4_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_4_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 5</td>
+                <td><input type="number" step="0.1" id="e_dsh_5_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_5_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_5_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_5_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_5_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_5_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_5_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_5_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_5_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 6</td>
+                <td><input type="number" step="0.1" id="e_dsh_6_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_6_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_6_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_6_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_6_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_6_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_6_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_6_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_6_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 7</td>
+                <td><input type="number" step="0.1" id="e_dsh_7_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_7_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_7_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_7_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_7_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_7_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_7_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_7_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_7_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+              <tr>
+                <td class="bg-gray-label text-center bold-val">Sistema 8</td>
+                <td><input type="number" step="0.1" id="e_dsh_8_sp" class="cell-input text-center" placeholder="-22.0"></td>
+                <td><input type="number" step="1" id="e_dsh_8_tiempo" class="cell-input text-center" placeholder="35"></td>
+                <td>
+                  <select id="e_dsh_8_tipo" class="cell-input text-center">
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Gas Caliente">Gas Caliente</option>
+                    <option value="Aire">Aire</option>
+                  </select>
+                </td>
+                <td><input type="time" id="e_dsh_8_h1" class="cell-input text-center" value="03:00"></td>
+                <td><input type="time" id="e_dsh_8_h2" class="cell-input text-center" value="11:00"></td>
+                <td><input type="time" id="e_dsh_8_h3" class="cell-input text-center" value="19:00"></td>
+                <td><input type="time" id="e_dsh_8_h4" class="cell-input text-center"></td>
+                <td><input type="time" id="e_dsh_8_h5" class="cell-input text-center"></td>
+                <td><input type="number" step="0.1" id="e_dsh_8_banda" class="cell-input text-center" placeholder="2.0"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COMENTARIOS ECOPAC -->
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>COMENTARIOS GENERALES ECOPAC (EQUIPOS CO2)</span>
+        </div>
+        <div style="padding: 6px;">
+          <textarea id="e_comentarios" class="cell-input" style="min-height: 48px; resize: vertical;" placeholder="Observaciones de operación de ECOPAC, condensación con glicol, válvulas de expansión y cámaras de congelados..."></textarea>
+        </div>
+      </section>
+
+      <!-- EVALUACIÓN AUTOMÁTICA DE CUMPLIMIENTO CASCADA HÍBRIDA -->
+      <section class="audit-summary-section">
+        <div class="audit-summary-header">
+          <span>EVALUACIÓN AUTOMÁTICA DE CUMPLIMIENTO TÉCNICO Y FOTOGRÁFICO (CASCADA HÍBRIDA RCR)</span>
+          <span id="auditOverallVerdict" class="audit-badge-pass">EVALUANDO...</span>
+        </div>
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th style="width: 5%;">#</th>
+              <th style="width: 30%;">CRITERIO NORMATIVO EVALUADO</th>
+              <th style="width: 45%;">OBJETIVO NORMATIVO / DESCRIPCIÓN</th>
+              <th style="width: 20%;">ESTATUS EN TIEMPO REAL</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Renderizado dinámico de evaluación -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- FIRMAS DIGITALES TOUCH EN SITIO -->
+      <section class="card-section" style="margin-top: 14px;">
+        <div class="section-header-bar">
+          <span>VALIDACIÓN TÉCNICA Y FIRMAS DIGITALES EN SITIO</span>
+          <span>ELABORADO POR / VALIDADO POR</span>
+        </div>
+        <div class="table-container">
+          <table class="excel-table">
+            <thead>
+              <tr class="bg-subhdr">
+                <th style="width: 50%;">ELABORADO POR: (TÉCNICO / PROVEEDOR ESPECIALISTA RCR)</th>
+                <th style="width: 50%;">VALIDADO POR: (SUPERVISOR DE GARANTÍAS WALMART)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div><strong style="font-size: 10px;">NOMBRE:</strong> <input type="text" id="firma1_nombre" class="cell-input bold-val" placeholder="Nombre completo del técnico especialista"></div>
+                    <div><strong style="font-size: 10px;">EMPRESA / PROVEEDOR:</strong> <input type="text" id="firma1_empresa" class="cell-input" value="RCR REFRIGERACION SA DE CV"></div>
+                    <div><strong style="font-size: 10px;">TELÉFONO / CONTACTO:</strong> <input type="text" id="firma1_contacto" class="cell-input" placeholder="Teléfono o correo de contacto"></div>
+                    
+                    <div class="signature-box-container" onclick="openSignatureModal('firma1')">
+                      <div id="firma1_prompt" class="signature-prompt">
+                        <span style="font-size: 11px;">Toca aquí para firmar con tu dedo</span>
+                      </div>
+                      <img id="firma1_img" class="signature-preview-img" style="display: none;" alt="Firma Técnico">
+                    </div>
+                    <div style="text-align: right;">
+                      <button type="button" class="btn-signature-clear no-print" onclick="clearSignature('firma1')">Borrar firma</button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div><strong style="font-size: 10px;">NOMBRE:</strong> <input type="text" id="firma2_nombre" class="cell-input bold-val" placeholder="Nombre del supervisor Walmart"></div>
+                    <div><strong style="font-size: 10px;">PUESTO:</strong> <input type="text" id="firma2_puesto" class="cell-input" placeholder="Supervisor de Garantías / Facilities"></div>
+                    <div><strong style="font-size: 10px;">ID ASOCIADO:</strong> <input type="text" id="firma2_id" class="cell-input" placeholder="Ej. d0h0ul3 / wmlink"></div>
+                    
+                    <div class="signature-box-container" onclick="openSignatureModal('firma2')">
+                      <div id="firma2_prompt" class="signature-prompt">
+                        <span style="font-size: 11px;">Toca aquí para firmar con tu dedo</span>
+                      </div>
+                      <img id="firma2_img" class="signature-preview-img" style="display: none;" alt="Firma Walmart">
+                    </div>
+                    <div style="text-align: right;">
+                      <button type="button" class="btn-signature-clear no-print" onclick="clearSignature('firma2')">Borrar firma</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- NOTA DE VERACIDAD OFICIAL -->
+      <div class="legal-footer-note">
+        <strong>Nota institucional:</strong> En caso de que se identifique que la información proporcionada en este documento carece de veracidad el proveedor se podrá hacer acreedor de una sanción administrativa y contractual por parte de Walmart México y Centroamérica.
+      </div>
+
+    </div><!-- /tab-ecopac -->
+
+
+    <!-- =================================================================== -->
+    <!-- PESTAÑA 3: REPORTE FOTOGRÁFICO CATEGORIZADO (28 EVIDENCIAS OFICIALES) -->
+    <!-- =================================================================== -->
+    <div class="tab-content" id="tab-fotos" style="display: none;">
+
+      <section class="card-section">
+        <div class="section-header-bar">
+          <span>REPORTE FOTOGRÁFICO DE CASCADA HÍBRIDA (PROPAC R290, GLICOL Y ECOPAC CO2)</span>
+          <div class="no-print">
+            <button type="button" class="btn btn-add-photo" onclick="addNewPhotoCard()">
+              AGREGAR FOTOGRAFÍA ADICIONAL
+            </button>
+          </div>
+        </div>
+
+        <div style="padding: 10px;">
+          <div style="font-size: 10.5px; color: #444; margin-bottom: 12px; background: #e7f3ff; padding: 8px 12px; border-radius: 4px; border-left: 4px solid #0071dc;">
+            <strong>Estructura oficial del reporte fotográfico de Cascada Híbrida:</strong> Contiene las evidencias requeridas por el formato oficial para: 
+            <em>PROPAC Parámetros Generales (Placa, Vista, Voltajes)</em>, 
+            <em>PROPAC Compresores 1 y 2 (Manómetros, Mirilla Aceite, Temperaturas)</em>, 
+            <em>Circuito de Glicol y Condensador (ΔT glicol, Nivel tanque, Presión bomba, Amperaje motores)</em> y 
+            <em>Equipos ECOPAC 1, 2, 3 y Tableros Slave (Presiones y Amperajes de Evaporador)</em>.
+          </div>
+
+          <div id="categorizedPhotosContainer"></div>
+        </div>
+      </section>
+
+    </div><!-- /tab-fotos -->
+
+  </main>
+</div><!-- /appRoot -->
+
+
+<!-- ===================================================================== -->
+<!-- MODALES (FIRMA, CÁMARA Y GUÍA DE CORREO)                              -->
+<!-- ===================================================================== -->
+<div class="modal-overlay" id="signatureModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span id="sigModalTitle">FIRMA DIGITAL EN PANTALLA TÁCTIL</span>
+      <button type="button" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;" onclick="closeSignatureModal()">X</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size: 10.5px; color: #555; margin-bottom: 8px;">
+        Firme dentro del recuadro usando su dedo o stylus. Mantenga el trazo centrado sobre la línea guía.
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="signatureCanvas" width="560" height="240"></canvas>
+        <div class="canvas-baseline">LÍNEA BASE DE FIRMA</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-clear" onclick="clearCanvasStroke()">Borrar Trazo</button>
+      <button type="button" class="btn" style="background: #6c757d; color: white;" onclick="closeSignatureModal()">Cancelar</button>
+      <button type="button" class="btn" style="background: #28a745; color: white; font-weight: 800;" onclick="acceptSignature()">Aceptar y Aplicar Firma</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="photoChoiceModal">
+  <div class="modal-box" style="max-width: 440px;">
+    <div class="modal-header">
+      <span>CAPTURAR O SELECCIONAR EVIDENCIA</span>
+      <button type="button" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;" onclick="closePhotoChoiceModal()">X</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 11px; color: #333; margin-bottom: 12px; text-align: center;">
+        Elija cómo desea ingresar la imagen técnica del reporte:
+      </p>
+      <div class="photo-options-grid">
+        <button type="button" class="btn-photo-choice" onclick="triggerCameraInput()">
+          <span style="font-size: 26px; font-weight: bold;">[ CÁMARA ]</span>
+          <span>TOMAR FOTO CON CÁMARA</span>
+          <small style="color: #666; font-weight: normal;">Dispara cámara trasera en tiempo real</small>
+        </button>
+        <button type="button" class="btn-photo-choice" onclick="triggerGalleryInput()">
+          <span style="font-size: 26px; font-weight: bold;">[ GALERÍA ]</span>
+          <span>SUBIR DE ARCHIVOS / GALERÍA</span>
+          <small style="color: #666; font-weight: normal;">Explorar fotos guardadas</small>
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" style="background: #6c757d; color: white;" onclick="closePhotoChoiceModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="emailGuideModal">
+  <div class="modal-box" style="max-width: 650px;">
+    <div class="modal-header" style="background: #28a745;">
+      <span>CORREO PREPARADO - CASCADA HÍBRIDA RCR</span>
+      <button type="button" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;" onclick="closeEmailModal()">X</button>
+    </div>
+    <div class="modal-body">
+      <div style="background: #e2efda; color: #385723; padding: 10px; border-radius: 5px; font-weight: 800; margin-bottom: 10px;">
+        1. Se generó y descargó el reporte oficial en PDF y HTML auditable: <br>
+        <span id="modalFinalFilename" style="text-decoration: underline; word-break: break-all;"></span>
+      </div>
+      <p style="font-size: 11.5px; color: #222; margin-bottom: 6px;">
+        <strong>2. Evaluación técnica y resumen para el correo:</strong>
+      </p>
+      <div class="mail-summary-box" id="modalMailSummary"></div>
+      <p style="font-size: 10.5px; color: #555;">
+        <strong>Instrucciones:</strong> Si su cliente de correo no se abrió automáticamente, presione <strong>"Abrir Cliente de Correo"</strong> o copie el texto anterior y adjunte el archivo descargado.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" style="background: #28a745; color: white; font-weight: 800;" onclick="downloadChecklistPDF()">Descargar PDF</button>
+      <button type="button" class="btn" style="background: #0071dc; color: white; font-weight: 800;" onclick="openMailClientDirect()">Abrir Cliente de Correo</button>
+      <button type="button" class="btn btn-clear" onclick="closeEmailModal()">Entendido y Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoFileSelected(event)">
+<input type="file" id="galleryFileInput" accept="image/*" style="display: none;" onchange="handlePhotoFileSelected(event)">
+
+<script type="application/json" id="embedded-state-data">
+null
+</script>
+
+<!-- ===================================================================== -->
+<!-- LÓGICA JAVASCRIPT AUTÓNOMA ULTRA-ROBUSTA                              -->
+<!-- ===================================================================== -->
+<script>
+  /* === FIREBASE AUTHENTICATION (GOOGLE / GMAIL) === */
+  var firebaseConfig = {
+    apiKey: "AIzaSyDummyKeyReplaceWithYoursIfDirectProject",
+    authDomain: "walmart-refrigeracion.firebaseapp.com",
+    projectId: "walmart-refrigeracion",
+    storageBucket: "walmart-refrigeracion.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef123456"
+  };
+
+  var auth = null;
+  var currentUser = null;
+
+  try {
+    if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      auth.onAuthStateChanged(function(user) {
+        if (user) {
+          handleUserSignedIn(user);
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Firebase no inicializado con llaves de producción. Modo autónomo habilitado:', e);
+  }
+
+    /* === SISTEMA DE ACCESO DIRECTO Y AUTENTICACIÓN GOOGLE === */
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      var savedName = localStorage.getItem('wm_tech_name');
+      var savedEmail = localStorage.getItem('wm_tech_email');
+      var nameInput = document.getElementById('auth_input_name');
+      var emailInput = document.getElementById('auth_input_email');
+      if (nameInput && savedName) nameInput.value = savedName;
+      if (emailInput && savedEmail) emailInput.value = savedEmail;
+      
+      if (savedEmail && sessionStorage.getItem('wm_logged_in') === 'true') {
+        handleUserSignedIn({
+          displayName: savedName || savedEmail.split('@')[0].toUpperCase(),
+          email: savedEmail,
+          photoURL: 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512.png'
+        });
+      }
+    } catch(e) {}
+  });
+
+  function submitAuthForm() {
+    var nameInput = document.getElementById('auth_input_name');
+    var emailInput = document.getElementById('auth_input_email');
+    var name = nameInput ? nameInput.value.trim() : '';
+    var email = emailInput ? emailInput.value.trim() : '';
+
+    if (!email || email.indexOf('@') === -1) {
+      alert('Por favor ingrese una cuenta de correo válida (Gmail o corporativo) para continuar.');
+      if (emailInput) emailInput.focus();
+      return;
+    }
+    if (!name) {
+      name = email.split('@')[0].replace(/[._]/g, ' ').toUpperCase();
+    }
+
+    handleUserSignedIn({
+      displayName: name.toUpperCase(),
+      email: email.toLowerCase(),
+      photoURL: 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512.png'
+    });
+  }
+
+  function signInWithGoogle() {
+    var emailInput = prompt("Ingrese su cuenta de Gmail para validar el checklist en campo:", "hernandezsanchezdavidelias@gmail.com");
+    if (emailInput && emailInput.indexOf('@') !== -1) {
+      var namePart = emailInput.split('@')[0].replace(/[._]/g, ' ').toUpperCase();
+      handleUserSignedIn({
+        displayName: namePart,
+        email: emailInput.toLowerCase(),
+        photoURL: 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512.png'
+      });
+    }
+  }
+
+  function continueAsGuest() {
+    handleUserSignedIn({
+      displayName: "TÉCNICO ESPECIALISTA DE CAMPO",
+      email: "hernandezsanchezdavidelias@gmail.com",
+      photoURL: "https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512.png"
+    });
+  }
+
+  function handleUserSignedIn(user) {
+    currentUser = user;
+    try {
+      if (user.displayName) localStorage.setItem('wm_tech_name', user.displayName);
+      if (user.email) localStorage.setItem('wm_tech_email', user.email);
+      sessionStorage.setItem('wm_logged_in', 'true');
+    } catch(e) {}
+    currentUser = user;
+    var overlay = document.getElementById('authGateOverlay');
+    if (overlay) overlay.style.display = 'none';
+
+    var chip = document.getElementById('authUserChip');
+    var pic = document.getElementById('authUserPic');
+    var nameEl = document.getElementById('authUserName');
+
+    if (chip) chip.style.display = 'flex';
+    if (nameEl) nameEl.textContent = user.displayName || user.email;
+    if (pic) pic.src = user.photoURL || "https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512.png";
+
+    var firma1Nom = document.getElementById('firma1_nombre');
+    var firma1Cont = document.getElementById('firma1_contacto');
+    if (firma1Nom && !firma1Nom.value) firma1Nom.value = user.displayName || '';
+    if (firma1Cont && !firma1Cont.value) firma1Cont.value = user.email || '';
+  }
+
+  function signOutUser() {
+    if (confirm("¿Desea cerrar la sesión activa de Google?")) {
+      if (auth) auth.signOut();
+      currentUser = null;
+      var chip = document.getElementById('authUserChip');
+      if (chip) chip.style.display = 'none';
+      var overlay = document.getElementById('authGateOverlay');
+      if (overlay) overlay.style.display = 'flex';
+    }
+  }
+
+  /* --- SLOTS OFICIALES DEL EXCEL CASCADA HÍBRIDA (28 EVIDENCIAS OFICIALES) --- */
+  var OFFICIAL_RF_SLOTS = [{"section": "PROPAC · PARÁMETROS GENERALES (R290 / GLICOL)", "subsection": "Placa de Datos", "caption": "PROPAC: Placa de datos del equipo PROPAC (Enfriador de Glicol R290)"}, {"section": "PROPAC · PARÁMETROS GENERALES (R290 / GLICOL)", "subsection": "Vista General", "caption": "PROPAC: Vista general del equipo en azotea / cuarto de máquinas"}, {"section": "PROPAC · PARÁMETROS GENERALES (R290 / GLICOL)", "subsection": "Voltaje L-L", "caption": "PROPAC: Voltaje de alimentación Línea-Línea con multímetro"}, {"section": "PROPAC · PARÁMETROS GENERALES (R290 / GLICOL)", "subsection": "Voltaje L-Tierra", "caption": "PROPAC: Voltaje de alimentación Línea-Tierra con multímetro"}, {"section": "PROPAC · COMPRESOR 1 (R290)", "subsection": "Presiones Succión y Descarga", "caption": "PROPAC Comp 1: Presión de succión y descarga (manómetros)"}, {"section": "PROPAC · COMPRESOR 1 (R290)", "subsection": "Nivel de Aceite", "caption": "PROPAC Comp 1: Nivel de aceite en mirilla del compresor"}, {"section": "PROPAC · COMPRESOR 1 (R290)", "subsection": "Temperatura de Succión", "caption": "PROPAC Comp 1: Temperatura de succión con termopar"}, {"section": "PROPAC · COMPRESOR 1 (R290)", "subsection": "Temperatura de Descarga", "caption": "PROPAC Comp 1: Temperatura de descarga con termopar"}, {"section": "PROPAC · COMPRESOR 2 (R290)", "subsection": "Presiones Succión y Descarga", "caption": "PROPAC Comp 2: Presión de succión y descarga (manómetros)"}, {"section": "PROPAC · COMPRESOR 2 (R290)", "subsection": "Nivel de Aceite", "caption": "PROPAC Comp 2: Nivel de aceite en mirilla del compresor"}, {"section": "PROPAC · COMPRESOR 2 (R290)", "subsection": "Temperatura de Succión", "caption": "PROPAC Comp 2: Temperatura de succión con termopar"}, {"section": "PROPAC · COMPRESOR 2 (R290)", "subsection": "Temperatura de Descarga", "caption": "PROPAC Comp 2: Temperatura de descarga con termopar"}, {"section": "PROPAC · CIRCUITO DE GLICOL Y CONDENSADOR", "subsection": "T° Entrada / Salida Glicol", "caption": "PROPAC Glicol: Temperatura de entrada y salida de glicol en intercambiador"}, {"section": "PROPAC · CIRCUITO DE GLICOL Y CONDENSADOR", "subsection": "Nivel Tanque de Glicol", "caption": "PROPAC Glicol: Nivel del tanque de expansión / reserva de glicol (%)"}, {"section": "PROPAC · CIRCUITO DE GLICOL Y CONDENSADOR", "subsection": "Presión Salida Bomba", "caption": "PROPAC Glicol: Presión de salida en manómetro de bombas recirculadoras"}, {"section": "PROPAC · CIRCUITO DE GLICOL Y CONDENSADOR", "subsection": "Amperaje Motores Condensador", "caption": "PROPAC: Amperaje de motores / ventiladores de condensador"}, {"section": "ECOPAC 1 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Ecopac 1", "caption": "ECOPAC 1: Presiones de succión y descarga (manómetros CO2)"}, {"section": "ECOPAC 1 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Slave 1", "caption": "ECOPAC 1: Presiones en tablero slave (succión / descarga)"}, {"section": "ECOPAC 1 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Ecopac 1", "caption": "ECOPAC 1: Amperaje de evaporador Ecopac 1 (motores y resistencias)"}, {"section": "ECOPAC 1 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Slave 1", "caption": "ECOPAC 1: Amperaje de evaporador Tablero Slave 1"}, {"section": "ECOPAC 2 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Ecopac 2", "caption": "ECOPAC 2: Presiones de succión y descarga (manómetros CO2)"}, {"section": "ECOPAC 2 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Slave 2", "caption": "ECOPAC 2: Presiones en tablero slave (succión / descarga)"}, {"section": "ECOPAC 2 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Ecopac 2", "caption": "ECOPAC 2: Amperaje de evaporador Ecopac 2 (motores y resistencias)"}, {"section": "ECOPAC 2 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Slave 2", "caption": "ECOPAC 2: Amperaje de evaporador Tablero Slave 2"}, {"section": "ECOPAC 3 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Ecopac 3", "caption": "ECOPAC 3: Presiones de succión y descarga (manómetros CO2)"}, {"section": "ECOPAC 3 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Presiones Slave 3", "caption": "ECOPAC 3: Presiones en tablero slave (succión / descarga)"}, {"section": "ECOPAC 3 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Ecopac 3", "caption": "ECOPAC 3: Amperaje de evaporador Ecopac 3 (motores y resistencias)"}, {"section": "ECOPAC 3 Y TABLERO SLAVE (CO2 R-744)", "subsection": "Amperaje Evaporador Slave 3", "caption": "ECOPAC 3: Amperaje de evaporador Tablero Slave 3"}];
+
+  /* --- ESTADO GLOBAL --- */
+  var appState = {
+    checklist: {},
+    photos: [],
+    signatures: {
+      firma1: '',
+      firma2: ''
+    }
+  };
+
+  var currentTargetFirma = null;
+  var activePhotoCardId = null;
+  var activeMailtoUrl = '';
+
+  /* --- INICIALIZACIÓN --- */
+  window.addEventListener('DOMContentLoaded', function() {
+    var fechaInput = document.getElementById('field_fecha');
+    if (fechaInput && !fechaInput.value) {
+      var today = new Date().toISOString().split('T')[0];
+      fechaInput.value = today;
+      var eFecha = document.getElementById('e_field_fecha');
+      if (eFecha) eFecha.value = today;
+    }
+
+    setupChoiceButtons();
+    loadEmbeddedOrLocalState();
+
+    if (!appState.photos || appState.photos.length < OFFICIAL_RF_SLOTS.length) {
+      var oldPhotos = appState.photos || [];
+      appState.photos = [];
+      for (var s = 0; s < OFFICIAL_RF_SLOTS.length; s++) {
+        var item = OFFICIAL_RF_SLOTS[s];
+        var existingImg = '';
+        if (oldPhotos[s] && oldPhotos[s].imgData) {
+          existingImg = oldPhotos[s].imgData;
+        }
+        appState.photos.push({
+          id: 'photo_slot_cascada_' + (s + 1),
+          section: item.section,
+          subsection: item.subsection,
+          imgData: existingImg,
+          caption: item.caption
+        });
+      }
+    }
+    renderAllPhotoCards();
+    updatePhotoBadge();
+
+    setupSignatureCanvas();
+
+    // Recalcular evaluaciones automáticas
+    calcSHGeneric('p_c1');
+    calcSHGeneric('p_c2');
+    evalDLTGeneric('p_c1');
+    evalDLTGeneric('p_c2');
+
+    var ecoPfxs = ['eco_1', 'eco_s1', 'eco_2', 'eco_s2', 'eco_3', 'eco_s3'];
+    for (var ep = 0; ep < ecoPfxs.length; ep++) {
+      calcSHGeneric(ecoPfxs[ep]);
+    }
+
+    calcDeltaTGlicol(1);
+    calcDeltaTGlicol(2);
+
+    evaluateNormativeCriteria();
+
+    document.addEventListener('input', function() {
+      evaluateNormativeCriteria();
+    });
+  });
+
+  /* --- SINCRONIZACIÓN DE CAMPOS GENERALES (TIENDA, FORMATO, ESTADO, FECHA) ENTRE PESTAÑAS --- */
+  function syncFields(srcId) {
+    var val = document.getElementById(srcId)?.value;
+    if (srcId === 'field_tienda') {
+      var target = document.getElementById('e_field_tienda');
+      if (target) target.value = val;
+    } else if (srcId === 'e_field_tienda') {
+      var target = document.getElementById('field_tienda');
+      if (target) target.value = val;
+    } else if (srcId === 'field_formato') {
+      var target = document.getElementById('e_field_formato');
+      if (target) target.value = val;
+    } else if (srcId === 'e_field_formato') {
+      var target = document.getElementById('field_formato');
+      if (target) target.value = val;
+    } else if (srcId === 'field_estado') {
+      var target = document.getElementById('e_field_estado');
+      if (target) target.value = val;
+    } else if (srcId === 'e_field_estado') {
+      var target = document.getElementById('field_estado');
+      if (target) target.value = val;
+    } else if (srcId === 'field_fecha') {
+      var target = document.getElementById('e_field_fecha');
+      if (target) target.value = val;
+    } else if (srcId === 'e_field_fecha') {
+      var target = document.getElementById('field_fecha');
+      if (target) target.value = val;
+    } else if (srcId === 'field_temp_ext') {
+      var target = document.getElementById('e_field_temp_ext');
+      if (target) target.value = val;
+    } else if (srcId === 'e_field_temp_ext') {
+      var target = document.getElementById('field_temp_ext');
+      if (target) target.value = val;
+    }
+  }
+
+  /* --- BOTONES DE SELECCIÓN --- */
+  function setupChoiceButtons() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.choice-btn');
+      if (!btn) return;
+
+      var groupEl = btn.closest('.choice-btn-group');
+      if (!groupEl) return;
+
+      var groupKey = groupEl.getAttribute('data-choice-group');
+      var val = btn.getAttribute('data-choice-val');
+      if (!groupKey || !val) return;
+
+      var hiddenInput = document.getElementById('field_' + groupKey);
+      if (!hiddenInput) return;
+
+      if (hiddenInput.value === val) {
+        hiddenInput.value = '';
+      } else {
+        hiddenInput.value = val;
+      }
+
+      updateGroupVisuals(groupEl, hiddenInput.value);
+      evaluateNormativeCriteria();
+    });
+  }
+
+  function updateGroupVisuals(groupEl, currentVal) {
+    var buttons = groupEl.querySelectorAll('.choice-btn');
+    for (var b = 0; b < buttons.length; b++) {
+      buttons[b].classList.remove('selected-si', 'selected-no', 'selected-sindato');
+      var btnVal = buttons[b].getAttribute('data-choice-val');
+      if (btnVal === currentVal) {
+        if (btnVal === 'SI') buttons[b].classList.add('selected-si');
+        else if (btnVal === 'NO') buttons[b].classList.add('selected-no');
+        else if (btnVal === 'SINDATO') buttons[b].classList.add('selected-sindato');
+      }
+    }
+  }
+
+  /* --- CÁLCULO GENÉRICO DE SOBRECALENTAMIENTO (SH) --- */
+  function calcSHGeneric(pfx) {
+    var input = document.getElementById(pfx + '_sh');
+    var evalLbl = document.getElementById(pfx + '_sh_eval');
+    if (!input || !evalLbl) return;
+
+    var valStr = input.value.trim();
+    if (valStr === '' || isNaN(parseFloat(valStr))) {
+      evalLbl.textContent = 'N/A';
+      evalLbl.className = 'status-badge-cell sh-na';
+      return;
+    }
+
+    var sh = parseFloat(valStr);
+    evalLbl.classList.remove('sh-na', 'thermo-normal', 'thermo-warning', 'thermo-critical');
+
+    if (sh < 3) {
+      evalLbl.textContent = 'LÍQUIDO';
+      evalLbl.classList.add('thermo-critical');
+    } else if (sh < 10) {
+      evalLbl.textContent = 'BAJO';
+      evalLbl.classList.add('thermo-warning');
+    } else if (sh > 30) {
+      evalLbl.textContent = 'ALTO';
+      evalLbl.classList.add('thermo-warning');
+    } else {
+      evalLbl.textContent = 'OK';
+      evalLbl.classList.add('thermo-normal');
+    }
+  }
+
+  /* --- EVALUACIÓN DE TEMPERATURA DE DESCARGA (DLT) PROPAC --- */
+  function evalDLTGeneric(pfx) {
+    var input = document.getElementById(pfx + '_t_desc');
+    var evalLbl = document.getElementById(pfx + '_t_desc_eval');
+    if (!input || !evalLbl) return;
+
+    var valStr = input.value.trim();
+    if (valStr === '' || isNaN(parseFloat(valStr))) {
+      evalLbl.textContent = 'N/A';
+      evalLbl.className = 'status-badge-cell sh-na';
+      return;
+    }
+
+    var dlt = parseFloat(valStr);
+    evalLbl.classList.remove('sh-na', 'thermo-normal', 'thermo-warning', 'thermo-critical');
+
+    if (dlt <= 107) {
+      evalLbl.textContent = 'OK';
+      evalLbl.classList.add('thermo-normal');
+    } else if (dlt <= 121) {
+      evalLbl.textContent = 'Aceptable';
+      evalLbl.classList.add('thermo-warning');
+    } else if (dlt < 135) {
+      evalLbl.textContent = 'Alta';
+      evalLbl.classList.add('thermo-critical');
+    } else {
+      evalLbl.textContent = 'Extrema';
+      evalLbl.classList.add('thermo-critical');
+    }
+  }
+
+  /* --- CÁLCULO DE Δ T GLICOL = T° ENTRADA - T° SALIDA --- */
+  function calcDeltaTGlicol(bombaNum) {
+    var tEnt = parseFloat(document.getElementById('bomba_' + bombaNum + '_t_ent')?.value);
+    var tSal = parseFloat(document.getElementById('bomba_' + bombaNum + '_t_sal')?.value);
+    var lbl = document.getElementById('bomba_' + bombaNum + '_dt');
+    if (!lbl) return;
+
+    if (!isNaN(tEnt) && !isNaN(tSal)) {
+      var dt = (tEnt - tSal).toFixed(1);
+      lbl.textContent = dt + ' °C';
+      if (dt >= 3.0 && dt <= 6.0) {
+        lbl.className = 'status-badge-cell thermo-normal';
+      } else {
+        lbl.className = 'status-badge-cell thermo-warning';
+      }
+    } else {
+      lbl.textContent = '--- °C';
+      lbl.className = '';
+    }
+  }
+
+  /* --- MOTOR DE EVALUACIÓN AUTOMÁTICA DE CRITERIOS (CASCADA HÍBRIDA) --- */
+  function evaluateNormativeCriteria() {
+    var results = [];
+    var allPass = true;
+
+    // Criterio 1: Circuito de Glicol (ΔT entre 3°C y 6°C)
+    var dtB1 = parseFloat(document.getElementById('bomba_1_dt')?.textContent);
+    var c1Status = "PENDIENTE";
+    var c1Badge = "audit-badge-warn";
+    if (!isNaN(dtB1)) {
+      if (dtB1 >= 2.5 && dtB1 <= 6.5) {
+        c1Status = "CUMPLE (ΔT Glicol = " + dtB1 + " °C)";
+        c1Badge = "audit-badge-pass";
+      } else {
+        c1Status = "DESVIACIÓN (ΔT Glicol = " + dtB1 + " °C fuera de 3-6°C)";
+        c1Badge = "audit-badge-alert";
+        allPass = false;
+      }
+    }
+    results.push({
+      id: 1,
+      name: "Circuito de Glicol (PROPAC)",
+      rule: "Diferencial térmico ΔT de glicol",
+      status: c1Status,
+      badge: c1Badge
+    });
+
+    // Criterio 2: Sobrecalentamiento Compresores PROPAC R290
+    var shP1 = parseFloat(document.getElementById('p_c1_sh')?.value);
+    var shP2 = parseFloat(document.getElementById('p_c2_sh')?.value);
+    var c2Status = "PENDIENTE";
+    var c2Badge = "audit-badge-warn";
+    if (!isNaN(shP1) && !isNaN(shP2)) {
+      if (shP1 >= 3 && shP1 <= 30 && shP2 >= 3 && shP2 <= 30) {
+        c2Status = "CUMPLE (Comp 1: " + shP1 + "K, Comp 2: " + shP2 + "K)";
+        c2Badge = "audit-badge-pass";
+      } else {
+        c2Status = "NO CUMPLE (Riesgo retorno líquido o SH Alto)";
+        c2Badge = "audit-badge-alert";
+        allPass = false;
+      }
+    }
+    results.push({
+      id: 2,
+      name: "Sobrecalentamiento R290 (PROPAC)",
+      rule: "Sobrecalentamiento operativo y retorno seguro",
+      status: c2Status,
+      badge: c2Badge
+    });
+
+    // Criterio 3: Temperatura de Descarga R290 (DLT <= 107°C)
+    var dltP1 = parseFloat(document.getElementById('p_c1_t_desc')?.value);
+    var dltP2 = parseFloat(document.getElementById('p_c2_t_desc')?.value);
+    var c3Status = "PENDIENTE";
+    var c3Badge = "audit-badge-warn";
+    if (!isNaN(dltP1) && !isNaN(dltP2)) {
+      if (dltP1 <= 121 && dltP2 <= 121) {
+        c3Status = "CUMPLE (Descargas ≤ 121°C)";
+        c3Badge = "audit-badge-pass";
+      } else {
+        c3Status = "ALERTA (Descarga > 121°C)";
+        c3Badge = "audit-badge-alert";
+        allPass = false;
+      }
+    }
+    results.push({
+      id: 3,
+      name: "Temperatura Descarga R290 (DLT)",
+      rule: "Temperatura de descarga (DLT)",
+      status: c3Status,
+      badge: c3Badge
+    });
+
+    // Criterio 4: Presiones y SH en Equipos ECOPAC (CO2)
+    var ecoShErrors = 0;
+    var ecoShEval = 0;
+    var ecoPfxs = ['eco_1', 'eco_s1', 'eco_2', 'eco_s2', 'eco_3', 'eco_s3'];
+    for (var k = 0; k < ecoPfxs.length; k++) {
+      var v = parseFloat(document.getElementById(ecoPfxs[k] + '_sh')?.value);
+      if (!isNaN(v)) {
+        ecoShEval++;
+        if (v < 3 || v > 30) ecoShErrors++;
+      }
+    }
+    var c4Status = "PENDIENTE";
+    var c4Badge = "audit-badge-warn";
+    if (ecoShEval > 0) {
+      if (ecoShErrors === 0) {
+        c4Status = "CUMPLE (" + ecoShEval + " equipos/slaves en rango OK)";
+        c4Badge = "audit-badge-pass";
+      } else {
+        c4Status = "NO CUMPLE (" + ecoShErrors + " equipos con SH anormal)";
+        c4Badge = "audit-badge-alert";
+        allPass = false;
+      }
+    }
+    results.push({
+      id: 4,
+      name: "Sobrecalentamiento Equipos ECOPAC CO2",
+      rule: "Sobrecalentamiento operativo y retorno seguro",
+      status: c4Status,
+      badge: c4Badge
+    });
+
+    // Criterio 5: Aceite de Compresores PROPAC y ECOPAC
+    var pac1 = document.getElementById('field_p_aceite1')?.value;
+    var eac1 = document.getElementById('field_e_aceite1')?.value;
+    var c5Status = "PENDIENTE";
+    var c5Badge = "audit-badge-warn";
+    if (pac1 && eac1) {
+      if (pac1 === 'SI' && eac1 === 'SI') {
+        c5Status = "CUMPLE (Niveles ≥ 1/4 mirilla y sin alarmas)";
+        c5Badge = "audit-badge-pass";
+      } else {
+        c5Status = "NO CUMPLE (Bajo nivel en mirilla)";
+        c5Badge = "audit-badge-alert";
+        allPass = false;
+      }
+    }
+    results.push({
+      id: 5,
+      name: "Inspección de Aceite (PROPAC / ECOPAC)",
+      rule: "Condición y nivel de aceite",
+      status: c5Status,
+      badge: c5Badge
+    });
+
+    // Criterio 6: Evidencias Fotográficas Totales (28 slots oficiales)
+    var numFotos = 0;
+    for (var f = 0; f < appState.photos.length; f++) {
+      if (appState.photos[f].imgData && appState.photos[f].imgData.length > 50) numFotos++;
+    }
+    var totalSlots = appState.photos.length || OFFICIAL_RF_SLOTS.length;
+    var photoPercent = Math.round((numFotos / totalSlots) * 100);
+    var photoStatus = numFotos + " de " + totalSlots + " fotos (" + photoPercent + "%)";
+    var photoBadge = numFotos >= 12 ? (numFotos === totalSlots ? "audit-badge-pass" : "audit-badge-warn") : "audit-badge-alert";
+    if (numFotos < 6) allPass = false;
+
+    results.push({
+      id: 6,
+      name: "Cumplimiento de Evidencia Fotográfica",
+      rule: "Evidencias fotográficas en sitio",
+      status: photoStatus,
+      badge: photoBadge
+    });
+
+    var tbody = document.getElementById('auditTableBody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      for (var r = 0; r < results.length; r++) {
+        var item = results[r];
+        var tr = document.createElement('tr');
+        tr.innerHTML = 
+          '<td class="text-center bold-val">' + item.id + '</td>' +
+          '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+          '<td>' + escapeHtml(item.rule) + '</td>' +
+          '<td><span class="' + item.badge + '">' + escapeHtml(item.status) + '</span></td>';
+        tbody.appendChild(tr);
+      }
+    }
+
+    var verdictEl = document.getElementById('auditOverallVerdict');
+    if (verdictEl) {
+      if (allPass && numFotos >= 6) {
+        verdictEl.className = 'audit-badge-pass';
+        verdictEl.textContent = 'DICTAMEN CASCADA HÍBRIDA: APROBADO CONFORME A NORMA';
+      } else {
+        verdictEl.className = 'audit-badge-alert';
+        verdictEl.textContent = 'DICTAMEN CASCADA HÍBRIDA: EN REVISIÓN / OBSERVACIONES';
+      }
+    }
+
+    return { results: results, allPass: allPass, numFotos: numFotos, totalSlots: totalSlots };
+  }
+
+  /* --- CONTROL DE PESTAÑAS (PROPAC, ECOPAC, FOTOS) --- */
+  function switchTab(tabId) {
+    var contents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < contents.length; i++) {
+      contents[i].style.display = 'none';
+    }
+
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].classList.remove('active');
+    }
+
+    var targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.style.display = 'block';
+
+    if (tabId === 'tab-propac') {
+      document.getElementById('tabBtn1')?.classList.add('active');
+    } else if (tabId === 'tab-ecopac') {
+      document.getElementById('tabBtn2')?.classList.add('active');
+    } else if (tabId === 'tab-fotos') {
+      document.getElementById('tabBtn3')?.classList.add('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* --- SISTEMA DE FIRMA DIGITAL TOUCH (CANVAS) --- */
+  var canvas, ctx;
+  var isDrawing = false;
+  var lastX = 0;
+  var lastY = 0;
+
+  function setupSignatureCanvas() {
+    canvas = document.getElementById('signatureCanvas');
+    if (!canvas) return;
+    ctx = canvas.getContext('2d');
+
+    canvas.addEventListener('mousedown', function(e) { startStroke(e.offsetX, e.offsetY); });
+    canvas.addEventListener('mousemove', function(e) { drawStroke(e.offsetX, e.offsetY); });
+    window.addEventListener('mouseup', function() { stopStroke(); });
+
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      var pos = getTouchPos(canvas, e.touches[0]);
+      startStroke(pos.x, pos.y);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      var pos = getTouchPos(canvas, e.touches[0]);
+      drawStroke(pos.x, pos.y);
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      stopStroke();
+    }, { passive: false });
+  }
+
+  function getTouchPos(cvs, touch) {
+    var rect = cvs.getBoundingClientRect();
+    var scaleX = cvs.width / rect.width;
+    var scaleY = cvs.height / rect.height;
+    return {
+      x: (touch.clientX - rect.left) * scaleX,
+      y: (touch.clientY - rect.top) * scaleY
+    };
+  }
+
+  function startStroke(x, y) {
+    isDrawing = true;
+    lastX = x;
+    lastY = y;
+  }
+
+  function drawStroke(x, y) {
+    if (!isDrawing) return;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = '#002244';
+    ctx.lineWidth = 2.8;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    lastX = x;
+    lastY = y;
+  }
+
+  function stopStroke() {
+    isDrawing = false;
+  }
+
+  function clearCanvasStroke() {
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function openSignatureModal(targetFirmaKey) {
+    currentTargetFirma = targetFirmaKey;
+    var title = targetFirmaKey === 'firma1' ? 'FIRMA: TÉCNICO ESPECIALISTA RCR' : 'FIRMA: SUPERVISOR WALMART';
+    document.getElementById('sigModalTitle').textContent = title;
+    document.getElementById('signatureModal').classList.add('active');
+
+    clearCanvasStroke();
+
+    setTimeout(function() {
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * 2;
+      canvas.height = rect.height * 2;
+      ctx.scale(2, 2);
+    }, 50);
+  }
+
+  function closeSignatureModal() {
+    document.getElementById('signatureModal').classList.remove('active');
+    currentTargetFirma = null;
+  }
+
+  function acceptSignature() {
+    if (!currentTargetFirma || !canvas) return;
+    var dataUrl = canvas.toDataURL('image/png');
+
+    appState.signatures[currentTargetFirma] = dataUrl;
+    renderSignatureView(currentTargetFirma, dataUrl);
+    closeSignatureModal();
+  }
+
+  function renderSignatureView(firmaKey, dataUrl) {
+    var promptEl = document.getElementById(firmaKey + '_prompt');
+    var imgEl = document.getElementById(firmaKey + '_img');
+
+    if (dataUrl && dataUrl.length > 50) {
+      imgEl.src = dataUrl;
+      imgEl.style.display = 'block';
+      if (promptEl) promptEl.style.display = 'none';
+    } else {
+      imgEl.removeAttribute('src');
+      imgEl.style.display = 'none';
+      if (promptEl) promptEl.style.display = 'flex';
+    }
+  }
+
+  function clearSignature(firmaKey) {
+    appState.signatures[firmaKey] = '';
+    renderSignatureView(firmaKey, '');
+  }
+
+  /* --- REPORTE FOTOGRÁFICO CATEGORIZADO (28 SLOTS OFICIALES) --- */
+  function updatePhotoBadge() {
+    var validCount = 0;
+    for (var p = 0; p < appState.photos.length; p++) {
+      if (appState.photos[p].imgData && appState.photos[p].imgData.length > 50) {
+        validCount++;
+      }
+    }
+    var badge = document.getElementById('photoBadgeCount');
+    if (badge) badge.textContent = validCount;
+  }
+
+  function addNewPhotoCard() {
+    var newCard = {
+      id: 'photo_extra_cascada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      section: 'EVIDENCIAS ADICIONALES CASCADA HÍBRIDA',
+      subsection: 'Campo',
+      imgData: '',
+      caption: 'Evidencia fotográfica complementaria'
+    };
+    appState.photos.push(newCard);
+    renderAllPhotoCards();
+    updatePhotoBadge();
+    evaluateNormativeCriteria();
+  }
+
+  function deletePhotoCard(cardId) {
+    if (confirm('¿Desea eliminar esta tarjeta de evidencia fotográfica?')) {
+      appState.photos = appState.photos.filter(function(p) { return p.id !== cardId; });
+      renderAllPhotoCards();
+      updatePhotoBadge();
+      evaluateNormativeCriteria();
+    }
+  }
+
+  function renderAllPhotoCards() {
+    var container = document.getElementById('categorizedPhotosContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    var grouped = {};
+    var sectionOrder = [];
+    for (var idx = 0; idx < appState.photos.length; idx++) {
+      var p = appState.photos[idx];
+      var sec = p.section || 'PARÁMETROS GENERALES';
+      if (!grouped[sec]) {
+        grouped[sec] = [];
+        sectionOrder.push(sec);
+      }
+      grouped[sec].push({ photo: p, globalIndex: idx });
+    }
+
+    for (var s = 0; s < sectionOrder.length; s++) {
+      var secName = sectionOrder[s];
+      var items = grouped[secName];
+
+      var secBlock = document.createElement('div');
+      secBlock.className = 'photo-section-block';
+
+      var secHeader = document.createElement('div');
+      secHeader.className = 'photo-section-title';
+      secHeader.innerHTML = '<span>' + escapeHtml(secName) + '</span><span>' + items.length + ' EVIDENCIAS</span>';
+      secBlock.appendChild(secHeader);
+
+      var grid = document.createElement('div');
+      grid.className = 'photo-grid';
+
+      for (var j = 0; j < items.length; j++) {
+        (function(itemObj) {
+          var photo = itemObj.photo;
+          var gIdx = itemObj.globalIndex;
+
+          var card = document.createElement('div');
+          card.className = 'photo-card';
+          card.id = photo.id;
+
+          var hasImg = photo.imgData && photo.imgData.length > 50;
+          var previewHtml = hasImg
+            ? '<img src="' + photo.imgData + '" alt="Evidencia ' + (gIdx + 1) + '">'
+            : '<div class="photo-placeholder-content">' +
+                 '<span style="font-size:24px; font-weight:bold;">[ FOTO ]</span>' +
+                 '<span>Toca para tomar foto o cargar imagen</span>' +
+                 '<small style="color: #0071dc; font-weight: bold;">Cámara móvil o galería</small>' +
+               '</div>';
+
+          var subLabel = photo.subsection ? ' (' + photo.subsection + ')' : '';
+
+          card.innerHTML = 
+            '<div class="photo-card-header">' +
+              '<span>#' + (gIdx + 1) + subLabel + '</span>' +
+              '<button type="button" class="btn-remove-photo no-print btn-del-target">Eliminar</button>' +
+            '</div>' +
+            '<div class="photo-preview-area area-click-target">' +
+              previewHtml +
+            '</div>' +
+            '<div class="photo-desc-area">' +
+              '<span class="photo-desc-label">SUBÍNDICE TÉCNICO / DESCRIPCIÓN:</span>' +
+              '<textarea class="photo-desc-input input-caption-target" placeholder="Describa el hallazgo...">' + escapeHtml(photo.caption || '') + '</textarea>' +
+            '</div>';
+
+          var delBtn = card.querySelector('.btn-del-target');
+          if (delBtn) {
+            delBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              deletePhotoCard(photo.id);
+            });
+          }
+
+          var prevArea = card.querySelector('.area-click-target');
+          if (prevArea) {
+            prevArea.addEventListener('click', function() {
+              openPhotoChoiceModal(photo.id);
+            });
+          }
+
+          var capInput = card.querySelector('.input-caption-target');
+          if (capInput) {
+            capInput.addEventListener('input', function() {
+              updatePhotoCaption(photo.id, this.value);
+            });
+          }
+
+          grid.appendChild(card);
+        })(items[j]);
+      }
+
+      secBlock.appendChild(grid);
+      container.appendChild(secBlock);
+    }
+  }
+
+  function updatePhotoCaption(photoId, val) {
+    for (var i = 0; i < appState.photos.length; i++) {
+      if (appState.photos[i].id === photoId) {
+        appState.photos[i].caption = val;
+        break;
+      }
+    }
+  }
+
+  function openPhotoChoiceModal(photoId) {
+    activePhotoCardId = photoId;
+    document.getElementById('photoChoiceModal').classList.add('active');
+  }
+
+  function closePhotoChoiceModal() {
+    document.getElementById('photoChoiceModal').classList.remove('active');
+  }
+
+  function triggerCameraInput() {
+    closePhotoChoiceModal();
+    var input = document.getElementById('cameraFileInput');
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  }
+
+  function triggerGalleryInput() {
+    closePhotoChoiceModal();
+    var input = document.getElementById('galleryFileInput');
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  }
+
+  function handlePhotoFileSelected(event) {
+    var file = event.target.files[0];
+    if (!file || !activePhotoCardId) return;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var maxDim = 1280;
+        var w = img.width;
+        var h = img.height;
+
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        var compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+
+        for (var j = 0; j < appState.photos.length; j++) {
+          if (appState.photos[j].id === activePhotoCardId) {
+            appState.photos[j].imgData = compressedBase64;
+            break;
+          }
+        }
+        renderAllPhotoCards();
+        updatePhotoBadge();
+        evaluateNormativeCriteria();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* --- RECOLECCIÓN Y PERSISTENCIA DE DATOS --- */
+  function collectAllFormData() {
+    var data = {};
+    var inputs = document.querySelectorAll('input:not([type="file"]), select, textarea');
+    for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].id) data[inputs[i].id] = inputs[i].value;
+    }
+
+    appState.checklist = data;
+    return appState;
+  }
+
+  function applyFormDataToUI(state) {
+    if (!state) return;
+    if (state.checklist) {
+      for (var key in state.checklist) {
+        if (!state.checklist.hasOwnProperty(key)) continue;
+        var el = document.getElementById(key);
+        if (el) {
+          el.value = state.checklist[key];
+        }
+        if (key.indexOf('field_') === 0) {
+          var group = key.replace('field_', '');
+          var groupEl = document.querySelector('[data-choice-group="' + group + '"]');
+          if (groupEl) {
+            updateGroupVisuals(groupEl, state.checklist[key]);
+          }
+        }
+      }
+    }
+
+    if (state.signatures) {
+      appState.signatures = state.signatures;
+      if (state.signatures.firma1) renderSignatureView('firma1', state.signatures.firma1);
+      if (state.signatures.firma2) renderSignatureView('firma2', state.signatures.firma2);
+    }
+
+    if (state.photos && Array.isArray(state.photos) && state.photos.length > 0) {
+      appState.photos = state.photos;
+      renderAllPhotoCards();
+      updatePhotoBadge();
+    }
+
+    calcSHGeneric('p_c1');
+    calcSHGeneric('p_c2');
+    evalDLTGeneric('p_c1');
+    evalDLTGeneric('p_c2');
+
+    var ecoPfxs = ['eco_1', 'eco_s1', 'eco_2', 'eco_s2', 'eco_3', 'eco_s3'];
+    for (var ep = 0; ep < ecoPfxs.length; ep++) {
+      calcSHGeneric(ecoPfxs[ep]);
+    }
+
+    calcDeltaTGlicol(1);
+    calcDeltaTGlicol(2);
+
+    evaluateNormativeCriteria();
+  }
+
+  function loadEmbeddedOrLocalState() {
+    try {
+      var scriptBlock = document.getElementById('embedded-state-data');
+      if (scriptBlock && scriptBlock.textContent.trim() !== 'null' && scriptBlock.textContent.trim() !== '') {
+        var embeddedData = JSON.parse(scriptBlock.textContent.trim());
+        if (embeddedData && typeof embeddedData === 'object') {
+          applyFormDataToUI(embeddedData);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('No se pudo cargar estado embebido:', e);
+    }
+
+    try {
+      var localData = localStorage.getItem('wmx_checklist_cascada_rcr_state');
+      if (localData) {
+        var parsed = JSON.parse(localData);
+        applyFormDataToUI(parsed);
+      }
+    } catch (e) {
+      console.warn('No se pudo cargar localStorage:', e);
+    }
+  }
+
+  /* --- 4. GUARDAR Y DESCARGAR EDITABLE --- */
+  function guardarYDescargarEditable() {
+    evaluateNormativeCriteria();
+    var fullState = collectAllFormData();
+
+    try {
+      localStorage.setItem('wmx_checklist_cascada_rcr_state', JSON.stringify(fullState));
+    } catch (e) {
+      console.warn('Almacenamiento local lleno:', e);
+    }
+
+    var formatoEl = document.getElementById('field_formato');
+    var tiendaEl = document.getElementById('field_tienda');
+    var formatoRaw = (formatoEl ? formatoEl.value : 'FORMATO').trim().replace(/[^a-zA-Z0-9]/g, '_');
+    var tiendaRaw = (tiendaEl ? tiendaEl.value : 'TIENDA').trim().replace(/[^a-zA-Z0-9]/g, '_');
+    var filename = 'Checklist_' + formatoRaw + '_' + tiendaRaw + '_Cascada_Hibrida_RCR.html';
+
+    var docClone = document.documentElement.cloneNode(true);
+    var dataScript = docClone.querySelector('#embedded-state-data');
+    if (dataScript) {
+      dataScript.textContent = '\n' + JSON.stringify(fullState, null, 2) + '\n';
+    }
+
+    var htmlString = '<!DOCTYPE html>\n' + docClone.outerHTML;
+    triggerFileDownload(filename, htmlString);
+    alert('Checklist guardado correctamente.\nArchivo descargado: ' + filename);
+  }
+
+  /* --- 5. ENVIAR CHECKLIST POR CORREO (SOLO LECTURA) --- */
+  function enviarChecklistPorCorreo() {
+    var tiendaInput = document.getElementById('field_tienda');
+    var rawTienda = tiendaInput ? tiendaInput.value.trim() : '';
+    var tiendaVal = rawTienda || 'UNIDAD_SIN_ESPECIFICAR';
+    var esIncompleto = !rawTienda;
+
+    var evalResult = evaluateNormativeCriteria();
+    var fullState = collectAllFormData();
+    try {
+      localStorage.setItem('wmx_checklist_cascada_rcr_state', JSON.stringify(fullState));
+    } catch (e) {}
+
+    var formatoEl = document.getElementById('field_formato');
+    var formatoVal = formatoEl ? formatoEl.value : 'FORMATO';
+    var filenameReadOnly = 'Checklist_' + formatoVal.replace(/[^a-zA-Z0-9]/g, '_') + '_' + tiendaVal.replace(/[^a-zA-Z0-9]/g, '_') + '_Cascada_Hibrida_RCR_FINAL.html';
+
+    var docClone = document.documentElement.cloneNode(true);
+
+    var dataScript = docClone.querySelector('#embedded-state-data');
+    if (dataScript) {
+      dataScript.textContent = '\n' + JSON.stringify(fullState, null, 2) + '\n';
+    }
+
+    var removeTargets = docClone.querySelectorAll('.actions-group, .tab-btn-email, .btn-add-photo, .btn-remove-photo, .btn-signature-clear, #photoChoiceModal, #signatureModal, #emailGuideModal, #authGateOverlay');
+    for (var r = 0; r < removeTargets.length; r++) {
+      removeTargets[r].remove();
+    }
+
+    var formControls = docClone.querySelectorAll('input:not([type="checkbox"]), select, textarea');
+    for (var fc = 0; fc < formControls.length; fc++) {
+      formControls[fc].setAttribute('readonly', 'true');
+      formControls[fc].setAttribute('disabled', 'true');
+      formControls[fc].style.backgroundColor = '#fafafa';
+      formControls[fc].style.border = 'none';
+    }
+
+    var choiceBtns = docClone.querySelectorAll('.choice-btn');
+    for (var cb = 0; cb < choiceBtns.length; cb++) {
+      choiceBtns[cb].removeAttribute('onclick');
+      choiceBtns[cb].style.cursor = 'default';
+    }
+
+    var clickables = docClone.querySelectorAll('.signature-box-container, .photo-preview-area');
+    for (var cl = 0; cl < clickables.length; cl++) {
+      clickables[cl].removeAttribute('onclick');
+      clickables[cl].style.cursor = 'default';
+    }
+
+    var headerBar = docClone.querySelector('.top-action-bar');
+    if (headerBar) {
+      var readOnlyBanner = document.createElement('div');
+      readOnlyBanner.style.cssText = 'background: #28a745; color: #fff; font-weight: 900; padding: 6px 12px; border-radius: 4px; font-size: 11px;';
+      if (esIncompleto || (evalResult && evalResult.numFotos < 5)) {
+        readOnlyBanner.style.background = '#d97706';
+        readOnlyBanner.textContent = 'REPORTE OFICIAL ENVIADO - [AVISO: INFORMACIÓN PARCIAL / INCOMPLETA]';
+      } else {
+        readOnlyBanner.style.background = '#28a745';
+        readOnlyBanner.textContent = 'REPORTE OFICIAL ENVIADO - MODO SOLO LECTURA AUDITABLE';
+      }
+      headerBar.appendChild(readOnlyBanner);
+    }
+
+    var finalHtmlString = '<!DOCTYPE html>\n' + docClone.outerHTML;
+    triggerFileDownload(filenameReadOnly, finalHtmlString);
+    // Descargar copia oficial en formato PDF en el dispositivo
+    downloadChecklistPDF(filenameReadOnly);
+
+    var toEmail = "david.elias.hernandez@walmart.com";
+    var baseCc = "Carlos.mendoza.v@walmart.com,Daniel.Rivera@walmart.com";
+    var userCc = (currentUser && currentUser.email) ? currentUser.email : "";
+    var ccEmail = userCc ? (baseCc + "," + userCc) : baseCc;
+    var subject = "Formato " + formatoVal + " - " + tiendaVal + " - CHECKLIST CASCADA HIBRIDA RCR (R290-GLICOL-CO2)";
+
+    var dtB1 = document.getElementById('bomba_1_dt')?.textContent || '-';
+    var tempExtVal = document.getElementById('field_temp_ext')?.value || 'N/A';
+    var fechaVal = document.getElementById('field_fecha')?.value || new Date().toISOString().split('T')[0];
+    var tecnicoName = document.getElementById('firma1_nombre')?.value || (currentUser ? currentUser.displayName : 'No especificado');
+
+    var evalTextLines = [];
+    for (var k = 0; k < evalResult.results.length; k++) {
+      var res = evalResult.results[k];
+      evalTextLines.push("• " + res.name + ": " + res.status);
+    }
+    var evalBlock = evalTextLines.join("\n");
+
+    var notaIncompleto = "";
+    if (esIncompleto || (evalResult && evalResult.numFotos < 5)) {
+      notaIncompleto = 
+        "**************************************************\n" +
+        "ADVERTENCIA DE AUDITORIA: INFORMACION INCOMPLETA\n" +
+        "El presente checklist fue emitido con datos faltantes o en blanco.\n" +
+        "Requiere solventacion tecnica por el contratista.\n" +
+        "**************************************************\n\n";
+    }
+
+    var summaryText = 
+      notaIncompleto +
+      "ESTIMADO EQUIPO DE MANTENIMIENTO Y GARANTÍAS WALMART:\n\n" +
+      "Se hace entrega del Protocolo de Inspección Técnica de Cascada Híbrida (PROPAC R290, Glicol y ECOPAC CO2):\n\n" +
+      "==================================================\n" +
+      "DATOS GENERALES DE LA UNIDAD\n" +
+      "==================================================\n" +
+      "• UNIDAD: " + tiendaVal + " (" + formatoVal + ")\n" +
+      "• FECHA: " + fechaVal + " | TEMP. EXT: " + tempExtVal + "\n" +
+      "• PROVEEDOR: RCR REFRIGERACION SA DE CV (" + tecnicoName + ")\n" +
+      "• CIRCUITO GLICOL (ΔT): " + dtB1 + "\n\n" +
+      "==================================================\n" +
+      "EVALUACIÓN DE CUMPLIMIENTO CONFORME A CRITERIOS NORMATIVOS\n" +
+      "==================================================\n" +
+      evalBlock + "\n" +
+      "• ESTATUS GLOBAL: " + (evalResult.allPass ? "CONFORME A NORMA WALMART" : "OBSERVACIONES / EN REVISIÓN") + "\n\n" +
+      "EVIDENCIA ADJUNTA:\n" +
+      "• Reporte Fotográfico: " + evalResult.numFotos + " de " + evalResult.totalSlots + " evidencias oficiales recabadas\n" +
+      "• Archivo Oficial Auditable Descargado: " + filenameReadOnly;
+
+    // Resumen conciso para mailto (evita que los navegadores corten la URL por longitud)
+    var conciseSummary = (notaIncompleto ? "[ADVERTENCIA: INFORMACION INCOMPLETA]\n\n" : "") +
+      "ESTIMADO EQUIPO WALMART:\n" +
+      "Se hace entrega del Protocolo de Inspeccion Tecnica de Refrigeracion.\n\n" +
+      "UNIDAD: " + tiendaVal + " (" + formatoVal + ")\n" +
+      "FECHA: " + fechaVal + " | GAS: " + gasVal + " | RACK: " + rackVal + "\n" +
+      "PROVEEDOR: " + provName + " (" + tecnicoName + ")\n\n" +
+      "DICTAMEN GLOBAL: " + (evalResult.allPass ? "CONFORME A NORMA WALMART" : "OBSERVACIONES / EN REVISION") + "\n" +
+      "EVIDENCIAS: " + evalResult.numFotos + " de " + evalResult.totalSlots + " fotos recabadas.\n\n" +
+      "Se adjunta el reporte oficial auditable generado en su dispositivo: " + filenameReadOnly.replace(/\.html$/i, '.pdf') + "\n";
+
+    activeMailtoUrl = "mailto:" + encodeURIComponent(toEmail) +
+      "?cc=" + encodeURIComponent(ccEmail) +
+      "&subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(conciseSummary);
+
+    try {
+      var mailLink = document.createElement('a');
+      mailLink.href = activeMailtoUrl;
+      mailLink.target = '_blank';
+      document.body.appendChild(mailLink);
+      mailLink.click();
+      document.body.removeChild(mailLink);
+    } catch (e) {
+      try { window.location.href = activeMailtoUrl; } catch(err) {}
+    }
+
+    document.getElementById('modalFinalFilename').textContent = filenameReadOnly;
+    document.getElementById('modalMailSummary').textContent = summaryText;
+    document.getElementById('emailGuideModal').classList.add('active');
+  }
+
+  
+    /* --- GENERACIÓN Y DESCARGA OFICIAL EN FORMATO PDF --- */
+  function downloadChecklistPDF(filenameBase) {
+    var pdfName = (filenameBase || 'Checklist_Refrigeracion_Walmart').replace(/\.html$/i, '') + '.pdf';
+    var element = document.getElementById('appRoot');
+    if (!element) return;
+
+    if (typeof html2pdf !== 'undefined') {
+      try {
+        var opt = {
+          margin: [8, 8, 8, 8],
+          filename: pdfName,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 1.2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'legal', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+      } catch(err) {
+        console.warn('Fallback a impresión nativa PDF:', err);
+        window.print();
+      }
+    } else {
+      window.print();
+    }
+  }
+
+    function openMailClientDirect() {
+    if (activeMailtoUrl) {
+      var lk = document.createElement('a');
+      lk.href = activeMailtoUrl;
+      document.body.appendChild(lk);
+      lk.click();
+      document.body.removeChild(lk);
+    }
+  }
+
+  function closeEmailModal() {
+    document.getElementById('emailGuideModal').classList.remove('active');
+  }
+
+  /* --- UTILIDADES --- */
+    /* --- IMPRESIÓN COMPLETA (CHECKLIST + REPORTE FOTOGRÁFICO) --- */
+  function imprimirChecklistYFotos() {
+    var tabs = document.querySelectorAll('.tab-content');
+    var originalDisplays = [];
+    tabs.forEach(function(t) {
+      originalDisplays.push(t.style.display);
+      t.style.display = 'block';
+    });
+
+    if (typeof renderAllPhotoCards === 'function') {
+      try { renderAllPhotoCards(); } catch(e) {}
+    }
+
+    setTimeout(function() {
+      window.print();
+      // Restaurar pestañas
+      tabs.forEach(function(t, idx) {
+        t.style.display = originalDisplays[idx];
+      });
+    }, 150);
+  }
+
+
+  function triggerFileDownload(filename, text) {
+    var blob = new Blob([text], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function limpiarFormulario() {
+    if (confirm('¿Está seguro de que desea limpiar todos los campos, fotos y firmas?')) {
+      localStorage.removeItem('wmx_checklist_cascada_rcr_state');
+      location.reload();
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
